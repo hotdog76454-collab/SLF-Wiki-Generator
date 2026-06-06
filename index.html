@@ -301,6 +301,19 @@
     <div id="planet_rows"></div>
   </div>
 
+  <div class="section">
+    <h3>Bases</h3>
+    <p class="note">How many bases does this system have? Name each one to match its base page title — they'll be listed and linked under ==Bases==.</p>
+    <div class="field" style="max-width:220px"><label>Number of bases</label>
+      <select id="base_count">
+        <option value="0" selected>0</option>
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+      </select>
+    </div>
+    <div id="base_rows" style="margin-top:10px"></div>
+  </div>
+
   <button class="btn-generate" onclick="buildOutput()">⬡ Generate Wiki Code</button>
 
   <div class="output-section" id="output_section">
@@ -319,13 +332,22 @@ function buildRows() {
   for (let i = 0; i < total; i++) {
     const isMoon = i >= pCount;
     const label = isMoon ? `Moon ${i - pCount + 1}` : `Planet ${i + 1}`;
+    const namePh = isMoon ? 'Moon name' : 'Planet name';
+    const typePh = isMoon ? 'e.g. Barren Moon' : 'e.g. Paradise Planet';
+    let orbitsField = '';
+    if (isMoon) {
+      let opts = '';
+      for (let p = 0; p < pCount; p++) opts += `<option value="${p}">Planet ${p + 1}</option>`;
+      orbitsField = `<div class="field"><label>Orbits which planet?</label><select id="p${i}_orbits">${opts}</select></div>`;
+    }
     html += `<div class="planet-block">
       <h4>${label}</h4>
       <div class="planet-grid">
-        <div class="field"><label>Name</label><input type="text" id="p${i}_name" placeholder="Planet name"></div>
-        <div class="field"><label>Type</label><input type="text" id="p${i}_type" placeholder="e.g. Paradise Planet"></div>
+        <div class="field"><label>Name</label><input type="text" id="p${i}_name" placeholder="${namePh}"></div>
+        <div class="field"><label>Type</label><input type="text" id="p${i}_type" placeholder="${typePh}"></div>
         <div class="field"><label>Extreme weather?</label><select id="p${i}_weather"><option>No</option><option>Yes</option></select></div>
         <div class="field"><label>Aggressive sentinels?</label><select id="p${i}_sent"><option>No</option><option>Yes</option></select></div>
+        ${orbitsField}
         <div class="field full-width"><label>Resources (comma separated)</label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
         <div class="field full-width"><label>Notes (optional)</label><input type="text" id="p${i}_notes" placeholder="Any extra notes"></div>
       </div>
@@ -337,6 +359,17 @@ function buildRows() {
 document.getElementById('planet_count').addEventListener('change', buildRows);
 document.getElementById('moon_count').addEventListener('change', buildRows);
 buildRows();
+
+function buildBaseRows() {
+  const n = parseInt(document.getElementById('base_count').value);
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    html += `<div class="field" style="margin-bottom:8px"><label>Base ${i + 1} name</label><input type="text" id="base${i}_name" placeholder="e.g. SLF Desert Base"></div>`;
+  }
+  document.getElementById('base_rows').innerHTML = html;
+}
+document.getElementById('base_count').addEventListener('change', buildBaseRows);
+buildBaseRows();
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
 
@@ -396,9 +429,9 @@ function buildOutput() {
   const discName = g('disc_name') || 'KING-MINION2';
   const discDate = g('disc_date') || 'dd month yyyy';
 
-  let planetRows = '';
-  for (let i = 0; i < total; i++) {
-    const name = g(`p${i}_name`) || `Planet ${i + 1}`;
+  function bodyRow(i) {
+    const isMoon = i >= pCount;
+    const name = g(`p${i}_name`) || (isMoon ? `Moon ${i - pCount + 1}` : `Planet ${i + 1}`);
     const type = g(`p${i}_type`) || '';
     const weather = (document.getElementById(`p${i}_weather`)?.value || 'No').toUpperCase();
     const sent = (document.getElementById(`p${i}_sent`)?.value || 'No').toUpperCase();
@@ -411,7 +444,7 @@ function buildOutput() {
       return t ? `[[${t}]]` : '';
     }).filter(Boolean).join(', ');
 
-    planetRows += `|-
+    return `|-
 | [[File:nmsMisc_NotAvailable.png|150px]]
 | [[${name}]]
 | ${type}
@@ -422,6 +455,29 @@ function buildOutput() {
 |colspan=3 | '''Notes''': ${notes}
 `;
   }
+
+  // Planets first, each immediately followed by the moons that orbit it
+  let planetRows = '';
+  for (let p = 0; p < pCount; p++) {
+    planetRows += bodyRow(p);
+    for (let m = pCount; m < total; m++) {
+      if (parseInt(document.getElementById(`p${m}_orbits`)?.value || '0', 10) === p) planetRows += bodyRow(m);
+    }
+  }
+  // Safety net: any moon whose parent planet no longer exists gets listed at the end
+  for (let m = pCount; m < total; m++) {
+    const parent = parseInt(document.getElementById(`p${m}_orbits`)?.value || '0', 10);
+    if (!(parent >= 0 && parent < pCount)) planetRows += bodyRow(m);
+  }
+
+  // Bases -> [[Base Name]] list
+  const baseCount = parseInt(g('base_count') || 0);
+  let basesBlock = '';
+  for (let i = 0; i < baseCount; i++) {
+    const bn = g(`base${i}_name`);
+    if (bn) basesBlock += `[[${bn}]]\n`;
+  }
+  basesBlock = basesBlock.trimEnd();
 
   const coordParts = coords.replace(/:/g, '|');
 
@@ -487,6 +543,7 @@ ${planetRows}|}
 ===System Location===
 
 ==Bases==
+${basesBlock}
 
 ==Additional Information==
 Claimed by the [[Space Link Federation]] as part of their mission to document the known universe before the Atlas collapse.
