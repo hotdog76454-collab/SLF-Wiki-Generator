@@ -288,10 +288,6 @@
           <option value="2">2</option><option value="3">3</option><option value="4">4</option>
         </select>
       </div>
-      <div class="field full-width" style="flex-direction:row;align-items:center;gap:8px">
-        <input type="checkbox" id="is_capital" style="width:auto;flex:0 0 auto">
-        <label style="text-transform:none;letter-spacing:0">This is the capital system</label>
-      </div>
     </div>
   </div>
 
@@ -419,9 +415,7 @@ function buildOutput() {
   if (coords) document.getElementById('coords').value = coords;
   if (glyphs) document.getElementById('glyphs').value = glyphs;
 
-  const isCapital = document.getElementById('is_capital').checked;
-  let summary = "'''" + slfName + "''' is a [[star system]] in the [[Capeki Spur]].";
-  if (isCapital) summary += ' Also the capital system of [[Space Link Federation]].';
+  const summary = "'''" + slfName + "''' is a [[star system]] in the [[Capeki Spur]].";
 
   const pCount = parseInt(g('planet_count') || 4);
   const mCount = parseInt(g('moon_count') || 0);
