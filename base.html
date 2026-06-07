@@ -243,6 +243,7 @@
       <div class="field"><label>Base name</label><input type="text" id="b_name" placeholder="e.g. SLF Desert Base"></div>
       <div class="field"><label>System name</label><input type="text" id="b_system" placeholder="e.g. SLF - Guncam"></div>
       <div class="field"><label>Planet name</label><input type="text" id="b_planet" placeholder="e.g. Edleri Sennu"></div>
+      <div class="field"><label>Moon (optional)</label><input type="text" id="b_moon" placeholder="only if the base is on a moon"></div>
       <div class="field"><label>Coordinates (axes — from visor)</label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
       <div class="field"><label>Portal glyphs (12 chars)</label><input type="text" id="b_glyphs" placeholder="e.g. 10B3FE16D676"></div>
       <div class="field full-width"><label>Short description</label><input type="text" id="b_desc" placeholder="e.g. Habitation outpost on an extreme desert planet."></div>
@@ -266,10 +267,13 @@ function buildOutput() {
   const name   = g('b_name')   || 'SLF Base Name';
   const system = g('b_system') || 'SLF - System Name';
   const planet = g('b_planet') || 'Planet Name';
+  const moon   = g('b_moon');
   const axes   = g('b_axes')   || '+0.00, +0.00';
   const glyphs = g('b_glyphs') || '000000000000';
   const desc   = g('b_desc')   || 'A Space Link Federation base.';
   const info   = g('b_info')   || 'Built by the Space Link Federation as an outpost.';
+  // where the base sits — moon (noting its parent planet) if given, else the planet
+  const locBody = moon ? `[[${moon}]] (a moon of [[${planet}]])` : `[[${planet}]]`;
 
   const output = `{{Version|Swarm}}
 {{Base infobox
@@ -279,7 +283,7 @@ function buildOutput() {
 | region = Capeki Spur
 | system = ${system}
 | planet = ${planet}
-| moon =
+| moon = ${moon}
 | axes = ${axes}
 | mode = Normal
 | platform = PS5, PC
@@ -291,10 +295,10 @@ function buildOutput() {
 '''${name}''' is a player base.
 
 ==Summary==
-${desc} Located on [[${planet}]] in the [[${system}]] system.
+${desc} Located on ${locBody} in the [[${system}]] system.
 
 ==Location==
-Found on [[${planet}]] in the [[${system}]] system, [[Capeki Spur]] region, [[Eissentam]] galaxy.
+Found on ${locBody} in the [[${system}]] system, [[Capeki Spur]] region, [[Eissentam]] galaxy.
 
 Coordinates: ${axes}
 
