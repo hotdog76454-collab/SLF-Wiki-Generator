@@ -246,16 +246,27 @@
   </header>
 
   <div class="section">
-    <h3>System Info</h3>
+    <h3>Civilization Settings</h3>
+    <p class="note">These identify your civ on the wiki. <strong>SLF members: leave these exactly as they are.</strong> Other civs: set them once to your own values and they'll carry through every page.</p>
     <div class="field-grid">
-      <div class="field"><label>Original name (before SLF prefix)</label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
+      <div class="field"><label>System name prefix</label><input type="text" id="prefix" value="SLF -"></div>
+      <div class="field"><label>Civilization name</label><input type="text" id="civ_name" value="Space Link Federation"></div>
+      <div class="field"><label>Galaxy</label><input type="text" id="galaxy" value="Eissentam"></div>
+      <div class="field"><label>Region</label><input type="text" id="region" value="Capeki Spur"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h3>System Info</h3>
+    <p class="note">Enter your 12-digit portal glyphs — the galactic coordinates are decoded from them automatically.</p>
+    <div class="field-grid">
+      <div class="field"><label>System name (no prefix)</label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
       <div class="field"><label>Star class</label><input type="text" id="star_class" placeholder="e.g. G4, F0p"></div>
       <div class="field"><label>Star colour</label>
         <select id="star_color">
-          <option>Yellow</option><option>Red</option><option>Blue</option><option>Green</option><option>Purple</option><option>White</option>
+          <option>Yellow</option><option>Red</option><option>Blue</option><option>Green</option><option>Purple</option>
         </select>
       </div>
-      <div class="field"><label>Galactic coordinates</label><input type="text" id="coords" placeholder="e.g. 0E75:007D:096C:009B"></div>
       <div class="field"><label>Portal glyphs (12 chars)</label><input type="text" id="glyphs" placeholder="e.g. 109BFE16D676"></div>
       <div class="field"><label>Faction</label>
         <select id="faction">
@@ -264,14 +275,8 @@
       </div>
       <div class="field"><label>Economy (galaxy map)</label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
       <div class="field"><label>Conflict level</label><input type="text" id="conflict" placeholder="e.g. Tranquil"></div>
-      <div class="field"><label>Has water worlds?</label>
-        <select id="water"><option>Yes</option><option>No</option></select>
-      </div>
-      <div class="field"><label>Has a gateway?</label>
-        <select id="gateway"><option>Yes</option><option>No</option></select>
-      </div>
-      <div class="field"><label>Dissonant?</label>
-        <select id="dissonant"><option>No</option><option>Yes</option></select>
+      <div class="field" id="water_field" style="display:none"><label>Has water worlds?</label>
+        <select id="water"><option>No</option><option>Yes</option></select>
       </div>
       <div class="field"><label>Discovery date</label><input type="text" id="disc_date" placeholder="e.g. 3 June 2026"></div>
       <div class="field"><label>Discoverer name</label><input type="text" id="disc_name" value="KING-MINION2"></div>
@@ -369,9 +374,8 @@ buildBaseRows();
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
 
-/* ---- glyphs <-> coordinates (verified against SLF - Ganggya-Opiu) ---- */
+/* ---- glyphs -> coordinates (verified against SLF - Ganggya-Opiu) ---- */
 const RE12 = /^[0-9A-F]{12}$/;
-const RECO = /^[0-9A-F]{1,4}:[0-9A-F]{1,4}:[0-9A-F]{1,4}:[0-9A-F]{1,4}$/;
 const hx = (n, w) => ((n & ((1 << (4 * w)) - 1)) >>> 0).toString(16).toUpperCase().padStart(w, '0');
 function glyphsToCoords(glyphs) {
   const s = glyphs.trim().toUpperCase();
@@ -383,39 +387,49 @@ function glyphsToCoords(glyphs) {
   const SSSS = parseInt('0' + sss, 16);
   return hx(Xg,4) + ':' + hx(Yg,4) + ':' + hx(Zg,4) + ':' + hx(SSSS,4);
 }
-function coordsToGlyphs(coords, planetIndex) {
-  planetIndex = planetIndex || 1;
-  const c = coords.trim().toUpperCase().replace(/\s/g, '');
-  if (!RECO.test(c)) throw new Error('Coords must look like 0E75:007D:096C:009B');
-  const parts = c.split(':').map(p => parseInt(p,16));
-  const Xg = parts[0], Yg = parts[1], Zg = parts[2], SSSS = parts[3];
-  const xxx = (Xg - 0x7FF) & 0xFFF, zzz = (Zg - 0x7FF) & 0xFFF, yy = (Yg + 0x81) & 0xFF, sss = SSSS & 0xFFF;
-  return hx(planetIndex,1) + hx(sss,3) + hx(yy,2) + hx(zzz,3) + hx(xxx,3);
+
+/* ---- Purple star = dissonant system + the only systems that can hold water worlds.
+       Show the water-worlds question only when the star colour is Purple. ---- */
+function updatePurpleUI() {
+  const isPurple = document.getElementById('star_color').value === 'Purple';
+  document.getElementById('water_field').style.display = isPurple ? '' : 'none';
 }
+document.getElementById('star_color').addEventListener('change', updatePurpleUI);
 
 /* ---- auto-fill star colour from class ---- */
 const CLASS_COLOUR = {F:'Yellow',G:'Yellow',K:'Red',M:'Red',E:'Green',B:'Blue',O:'Blue',X:'Purple',Y:'Purple'};
 document.getElementById('star_class').addEventListener('input', function (e) {
   const col = CLASS_COLOUR[(e.target.value.trim()[0] || '').toUpperCase()];
-  if (col) document.getElementById('star_color').value = col;
+  if (col) { document.getElementById('star_color').value = col; updatePurpleUI(); }
 });
+updatePurpleUI();
 
 function buildOutput() {
+  const prefix = g('prefix') || 'SLF -';
+  const civ = g('civ_name') || 'Space Link Federation';
+  const galaxy = g('galaxy') || 'Eissentam';
+  const region = g('region') || 'Capeki Spur';
   const origName = g('orig_name');
-  const slfName = origName ? `SLF - ${origName}` : 'SLF - System Name';
-  // Enter EITHER glyphs OR coordinates — compute the other automatically.
-  let coords = g('coords').toUpperCase().replace(/\s/g, '');
-  let glyphs = g('glyphs').toUpperCase();
-  try {
-    if (glyphs) { coords = glyphsToCoords(glyphs); }
-    else if (coords) { glyphs = coordsToGlyphs(coords); }
-  } catch (err) {
-    alert('Coordinate / glyph problem:\n' + err.message + '\n\nFix it and generate again.');
-  }
-  if (coords) document.getElementById('coords').value = coords;
-  if (glyphs) document.getElementById('glyphs').value = glyphs;
+  const slfName = origName ? `${prefix} ${origName}` : `${prefix} System Name`;
 
-  const summary = "'''" + slfName + "''' is a [[star system]] in the [[Capeki Spur]].";
+  // Portal glyphs only — the galactic coordinates are decoded from them automatically.
+  let glyphs = g('glyphs').toUpperCase();
+  if (!glyphs) { alert('Enter the 12-digit portal glyphs (e.g. 109BFE16D676).'); return; }
+  let coords;
+  try {
+    coords = glyphsToCoords(glyphs);
+  } catch (err) {
+    alert('Portal glyph problem:\n' + err.message + '\n\nFix it and generate again.');
+    return;
+  }
+  document.getElementById('glyphs').value = glyphs;
+
+  // Purple-star systems are dissonant, and are the only systems that can have water worlds.
+  const isPurple = g('star_color') === 'Purple';
+  const dissonant = isPurple ? 'Yes' : '';
+  const water = isPurple ? g('water') : 'No';
+
+  const summary = "'''" + slfName + "''' is a [[star system]] in the [[" + region + "]].";
 
   const pCount = parseInt(g('planet_count') || 4);
   const mCount = parseInt(g('moon_count') || 0);
@@ -479,8 +493,8 @@ function buildOutput() {
 {{System infobox
 | name = ${slfName}
 | image = nmsMisc_NotAvailable.png
-| galaxy = Eissentam
-| region = Capeki Spur
+| galaxy = ${galaxy}
+| region = ${region}
 | multiplestars =
 | color = ${g('star_color')}
 | class = ${g('star_class')}
@@ -488,9 +502,9 @@ function buildOutput() {
 | coordinates = ${coords}
 | planet = ${pCount}
 | moon = ${mCount}
-| water = ${g('water')}
-| dissonant = ${g('dissonant') === 'Yes' ? 'Yes' : ''}
-| gateway = ${g('gateway')}
+| water = ${water}
+| dissonant = ${dissonant}
+| gateway = Yes
 | faction = ${g('faction')}
 | economy = ${g('economy')}
 | economysell =
@@ -498,7 +512,7 @@ function buildOutput() {
 | wealth =
 | conflict = ${g('conflict')}
 | mode = Normal
-| civilized = Space Link Federation
+| civilized = ${civ}
 | discoveredlink = ${discName}
 | release = Swarm
 | platform = PS5, PC
@@ -540,7 +554,7 @@ ${planetRows}|}
 ${basesBlock}
 
 ==Additional Information==
-Claimed by the [[Space Link Federation]] as part of their mission to document the known universe before the Atlas collapse.
+Claimed by the [[${civ}]] as part of their mission to document the known universe before the Atlas collapse.
 
 ==Gallery==
 <gallery>
