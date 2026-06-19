@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SLF System Wiki Code Generator</title>
+  <title>Space Link System Atlas</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Share+Tech+Mono&display=swap');
 
@@ -240,9 +240,9 @@
 <body>
 <div class="container">
   <header>
-    <h1>⬡ Space Link Federation</h1>
+    <h1>⬡ Space Link System Atlas</h1>
     <p>NMS Wiki System Page Code Generator</p>
-    <a href="base.html" style="display:inline-block;margin-top:0.8rem;color:var(--accent);text-decoration:none;font-size:0.8rem;border:1px solid var(--border);padding:5px 14px;border-radius:4px">⬡ Base Page Generator →</a>
+    <a href="base.html" style="display:inline-block;margin-top:0.8rem;color:var(--accent);text-decoration:none;font-size:0.8rem;border:1px solid var(--border);padding:5px 14px;border-radius:4px">⬡ Space Link Base Creator →</a>
   </header>
 
   <div class="section">
@@ -493,6 +493,7 @@ function buildOutput() {
   const coordParts = coords.replace(/:/g, '|');
 
   const output = `{{Version|Swarm}}
+<small>''Page created using the Space Link System Atlas''</small>
 {{System infobox
 | name = ${slfName}
 | image = nmsMisc_NotAvailable.png
