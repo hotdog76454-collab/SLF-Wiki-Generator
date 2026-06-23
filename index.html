@@ -492,15 +492,14 @@ function g(id) { return (document.getElementById(id)?.value || '').trim(); }
 const HELP_IMG_BASE = 'help/';
 const HELP = {
   galaxy: { title:'Galaxy', steps:[
-    "Open the Galaxy Map (from a Space Station teleporter, or hold the pulse-drive / warp menu).",
-    "The galaxy's name is shown on the Galaxy Map screen — that's your galaxy."], imgs:['galaxy.png'] },
+    "Open the Galaxy Map from the menu.",
+    "The galaxy's name is shown in the top-left corner."] },
   region: { title:'Region', steps:[
-    "Open your Log / Discoveries from the pause menu.",
-    "Discovered systems are grouped by region — the region name is the header of the group your system is in.",
-    "It also flashes in the corner the first time you warp into a new region."], imgs:['region.png'] },
+    "On the Galaxy Map, expand a system's info box to read its region.",
+    "Systems on the map are grouped by region."] },
   system_name: { title:'System name', steps:[
-    "The system's name appears top-left when you warp in, and in your Discoveries.",
-    "Use the ORIGINAL name (the game-generated one) — not a name you renamed it to."], imgs:['system-name.png'] },
+    "Found in your Discoveries and in the Galaxy Map menu.",
+    "It also appears on-screen when you warp into the system."] },
   star_class: { title:'Star class', steps:[
     "Open the Galaxy Map and select your system.",
     "The star's class (e.g. G4, F0p) is shown in the system info panel.",
@@ -515,7 +514,7 @@ const HELP = {
     "The Galaxy Map system info panel lists the conflict level (e.g. Tranquil, Dangerous).",
     "A Conflict Scanner ship upgrade shows it on the map."], imgs:['conflict.png'] },
   dissonant: { title:'Dissonant planets', steps:[
-    "On the Galaxy Map, dissonant systems show 'Dissonant' next to the distance (an Economy Scanner ship upgrade reveals it).",
+    "On the Galaxy Map, a dissonant system shows the word 'Dissonant' right next to the star class (an Economy Scanner upgrade reveals it).",
     "Inside the system, scan each planet — a corrupted-Sentinel world shows 'Dissonance Detected' in its on-screen description.",
     "If any planet shows that (or the system is flagged Dissonant), choose Yes.",
     "Purple-star systems are always dissonant."] },
@@ -523,21 +522,20 @@ const HELP = {
     "Only purple-star systems can have full ocean worlds.",
     "Planet descriptions vary, so don't go by the label — if a planet is basically all ocean, it's a water world. Choose Yes if the system has one."] },
   glyphs: { title:'Portal glyphs', steps:[
-    "Unlock Portal Glyphs first — talk to Travellers at space stations (one glyph each).",
-    "Interact with a portal (or read a Traveller grave) to see the system's 12-glyph address.",
-    "Click the glyphs on the dial here, or type the 12-character code."], imgs:['glyphs.png'] },
+    "Unlock Portal Glyphs through the story first.",
+    "Then interact with any portal to read off its 12-glyph address.",
+    "Click the glyphs on the dial here, or type the code in."] },
   planet_name: { title:'Planet name', steps:[
-    "A planet's name shows when you scan it or select it in the system view.",
-    "Use its original name."], imgs:['planet-name.png'] },
+    "A planet's name shows when you scan it, or select it in the Discoveries tab in the main menu."] },
   planet_type: { title:'Planet type', steps:[
-    "Point at the planet with your Analysis Visor (from space or the surface).",
-    "The biome type (e.g. Lush, Toxic, Frozen, Barren) is shown — that's the type."], imgs:['planet-type.png'] },
+    "Scan the planet from space, or use your Analysis Visor, to see its type / biome (e.g. Lush, Toxic, Frozen)."] },
   planet_weather: { title:'Extreme weather', steps:[
-    "The planet's info (Analysis Visor / discovery page) lists its weather.",
-    "Storm-heavy or hazardous worlds (Scorched, Frozen, Toxic, Radioactive storms) = Yes. Calm/clear = No."], imgs:['planet-weather.png'] },
+    "The planet's info (Analysis Visor or discovery page) lists its weather.",
+    "Hazardous, storm-heavy worlds (scorching, frozen, toxic, radioactive) = Yes; calm/clear = No.",
+    "Fun fact: extreme worlds often carry activated minerals, like Activated Copper."] },
   planet_sentinels: { title:'Aggressive sentinels', steps:[
-    "The planet info shows Sentinel activity.",
-    "'Aggressive', 'High security' or 'Frenzied' = Yes. 'Low', 'Limited' or none = No."], imgs:['planet-sentinels.png'] },
+    "A planet's Sentinel level shows when you scan it (and in your Discoveries).",
+    "Choose Yes only if it reads 'Aggressive Sentinels' — those attack on sight. 'Low' or 'High' activity = No."] },
   planet_resources: { title:'Resources', steps:[
     "Scan the planet with your Analysis Visor — its main resources are listed.",
     "Enter them separated by commas (e.g. Copper, Paraffinium, Sodium)."], imgs:['planet-resources.png'] },
