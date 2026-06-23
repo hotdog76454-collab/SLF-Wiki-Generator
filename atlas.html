@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Space Link Base Creator</title>
+  <title>Space Link System Atlas</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Share+Tech+Mono&display=swap');
 
@@ -75,7 +75,9 @@
     }
     .nav-chip:hover { border-color:var(--blue); color:var(--text); box-shadow:0 0 16px #2d7bff44; }
 
-    /* ---- Portal Address Resolver (two self-sizing modules) ---- */
+    /* ---- Portal Address Resolver (the signature) ---- */
+    /* Decoder + dial are two self-sizing modules, so neither column drags empty
+       space down beside the other. */
     .resolver { margin-bottom:1.6rem; }
     .resolver-head {
       display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;
@@ -155,6 +157,14 @@
     }
     .dial-btn:hover { border-color:var(--visor-dim); color:var(--text); }
 
+    .coord-readout {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+      background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;
+    }
+    .coord-cell { background:var(--void2); padding:.7rem .4rem; text-align:center; }
+    .coord-cell .k { font-family:var(--f-display); font-size:.58rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; }
+    .coord-cell .v { font-family:var(--f-mono); font-size:1.15rem; color:var(--text); margin-top:.25rem; letter-spacing:.04em; }
+    .coord-readout.resolved .coord-cell .v { color:var(--visor); text-shadow:0 0 14px #45e6de55; }
     .resolver-status {
       margin-top:.85rem; font-size:.74rem; letter-spacing:.05em; color:var(--hint);
       display:flex; align-items:center; gap:.5em;
@@ -187,7 +197,7 @@
       font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
       text-transform:uppercase; color:var(--dim); display:inline-flex; align-items:center; flex-wrap:wrap;
     }
-    /* qualifier in a label, e.g. "(in-game)" — mono so the parentheses render curved */
+    /* qualifier in a label, e.g. "(no prefix)" — mono so the parentheses render curved */
     .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--note); }
     .field input, .field select {
       background:var(--input); border:1px solid var(--line); border-radius:4px; color:var(--text);
@@ -202,6 +212,36 @@
     .full-width { grid-column:1/-1; }
     .hint { font-size:.68rem; color:var(--hint); letter-spacing:.03em; line-height:1.4; }
     .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
+
+    /* star-colour swatches (real star colours = the data's true values) */
+    .swatches { display:flex; flex-wrap:wrap; gap:8px; }
+    .swatch {
+      display:flex; align-items:center; gap:7px; background:var(--input);
+      border:1px solid var(--line); color:var(--dim); font-family:var(--f-display);
+      text-transform:uppercase; letter-spacing:.1em; font-size:.66rem; padding:8px 13px;
+      border-radius:4px; cursor:pointer; transition:all .2s;
+    }
+    .swatch .dot { width:12px; height:12px; border-radius:50%; background:var(--sc); box-shadow:0 0 9px var(--sc); }
+    .swatch:hover { border-color:var(--visor-dim); color:var(--text); }
+    .swatch.active { border-color:var(--blue); color:var(--text); background:#0c1d38; box-shadow:0 0 0 1px var(--blue), 0 0 14px #2d7bff3a; }
+
+    /* dissonant state (purple) + purple-star lock */
+    #dissonant_field.danger select { border-color:var(--dissonant); box-shadow:0 0 0 1px var(--dissonant), 0 0 14px #bf7bff44; color:var(--dissonant); }
+    #dissonant_field.danger label::after {
+      content:'⬡ DISSONANT'; margin-left:.7em; color:var(--dissonant); font-size:.82em; letter-spacing:.1em;
+    }
+    #dissonant_field.locked select { opacity:.6; cursor:not-allowed; }
+    .ds-term { color:var(--dissonant); text-shadow:0 0 8px #bf7bff55; }
+
+    .planet-block {
+      background:var(--panel-soft); border:1px solid var(--line-soft);
+      border-radius:5px; padding:13px; margin-bottom:10px;
+    }
+    .planet-block h4 {
+      font-family:var(--f-display); font-size:.64rem; color:var(--blue);
+      letter-spacing:.16em; text-transform:uppercase; margin-bottom:11px;
+    }
+    .planet-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:9px; }
 
     /* ---- "How to get this info" helper button (bright white circle, blue ?) ---- */
     .help-btn {
@@ -296,7 +336,10 @@
     .wiki-howto:hover { color:var(--text); }
 
     @media (max-width:760px) { .resolver-body { grid-template-columns:1fr; } }
-    @media (max-width:560px) { .glyph-strip { grid-template-columns:repeat(6,1fr); } }
+    @media (max-width:560px) {
+      .glyph-strip { grid-template-columns:repeat(6,1fr); }
+      .coord-readout { grid-template-columns:repeat(2,1fr); }
+    }
     @media (prefers-reduced-motion: reduce) {
       * { transition:none !important; animation:none !important; }
     }
@@ -305,28 +348,34 @@
 <body>
 <div class="container">
   <header>
-    <div class="eyebrow">Planetary Construction Log</div>
-    <h1><span class="hex">Space Link</span> Base Creator</h1>
+    <div class="eyebrow">Stellar Cartography Terminal</div>
+    <h1><span class="hex">Space Link</span> System Atlas</h1>
     <div class="scanline"></div>
     <div style="margin-top:1.4rem; display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap;">
       <a class="nav-chip" href="index.html" style="margin-top:0">⌂ Hub</a>
-      <a class="nav-chip" href="atlas.html" style="margin-top:0">Space Link System Atlas →</a>
+      <a class="nav-chip" href="base.html" style="margin-top:0">Space Link Base Creator →</a>
       <a class="nav-chip" href="civ.html" style="margin-top:0">Space Link Civ Registry →</a>
     </div>
   </header>
 
-  <!-- SIGNATURE: Portal Address Resolver (the base's home system) -->
+  <!-- SIGNATURE: Portal Address Resolver -->
   <div class="resolver">
     <div class="resolver-head">
-      <span class="title">⬡ System Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
+      <span class="title">⬡ Portal Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
       <span class="sub">Click glyphs, or type the address</span>
     </div>
     <div class="resolver-body">
       <div class="decoder">
-        <input type="text" id="b_glyphs" class="glyph-input" maxlength="12" autocomplete="off" spellcheck="false"
-               placeholder="DIAL 12 GLYPHS · e.g. 10B3FE16D676">
+        <input type="text" id="glyphs" class="glyph-input" maxlength="12" autocomplete="off" spellcheck="false"
+               placeholder="DIAL 12 GLYPHS · e.g. 109BFE16D676">
         <div class="glyph-strip" id="glyph_strip"></div>
-        <div class="resolver-status" id="resolver_status">Optional — dial or type the system's 12 glyphs.</div>
+        <div class="coord-readout" id="coord_readout">
+          <div class="coord-cell"><div class="k">X</div><div class="v" id="cx">––––</div></div>
+          <div class="coord-cell"><div class="k">Y</div><div class="v" id="cy">––––</div></div>
+          <div class="coord-cell"><div class="k">Z</div><div class="v" id="cz">––––</div></div>
+          <div class="coord-cell"><div class="k">System</div><div class="v" id="cs">––––</div></div>
+        </div>
+        <div class="resolver-status" id="resolver_status">Awaiting address — dial or type 12 glyphs to resolve coordinates.</div>
       </div>
       <div class="dial">
         <div class="dial-label">⬡ Glyph Dial</div>
@@ -343,31 +392,83 @@
     <h2>Identification</h2>
     <p class="note">These name your civ on the wiki. Set them once and they carry through every page.</p>
     <div class="field-grid">
+      <div class="field"><label>System name prefix</label><input type="text" id="prefix" placeholder="e.g. SLF -"></div>
       <div class="field"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
       <div class="field"><label>Galaxy <button class="help-btn" type="button" data-help="galaxy" title="How to get this info">?</button></label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
       <div class="field"><label>Region <button class="help-btn" type="button" data-help="region" title="How to get this info">?</button></label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
-      <div class="field"><label>Builder name <span class="q">(in-game)</span></label><input type="text" id="builder" placeholder="e.g. KING-MINION2"></div>
     </div>
   </div>
 
   <div class="panel">
-    <h2>Base Data</h2>
+    <h2>Stellar Data</h2>
     <div class="field-grid">
-      <div class="field"><label>Base name</label><input type="text" id="b_name" placeholder="e.g. SLF Desert Base"></div>
-      <div class="field"><label>System name <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="b_system" placeholder="e.g. SLF - Guncam"></div>
-      <div class="field"><label>Planet name <button class="help-btn" type="button" data-help="planet_name" title="How to get this info">?</button></label><input type="text" id="b_planet" placeholder="e.g. Edleri Sennu"></div>
-      <div class="field"><label>Moon <span class="q">(only if base is on a moon)</span> <button class="help-btn" type="button" data-help="moon" title="How to get this info">?</button></label><input type="text" id="b_moon" placeholder="e.g. moon name"></div>
-      <div class="field full-width"><label>Coordinates <span class="q">(axes — from the analysis visor)</span> <button class="help-btn" type="button" data-help="axes" title="How to get this info">?</button></label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
-      <div class="field full-width"><label>Short description</label><input type="text" id="b_desc" placeholder="e.g. Habitation outpost on an extreme desert planet."></div>
-      <div class="field full-width"><label>Additional info</label><input type="text" id="b_info" placeholder="e.g. Built by the Space Link Federation as an outpost."></div>
+      <div class="field"><label>System name <span class="q">(no prefix)</span> <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
+      <div class="field"><label>Star class <button class="help-btn" type="button" data-help="star_class" title="How to get this info">?</button></label><input type="text" id="star_class" placeholder="e.g. G4, F0p"></div>
+      <div class="field full-width"><label>Star colour</label>
+        <div class="swatches" id="swatches">
+          <button type="button" class="swatch active" data-color="Yellow"><span class="dot" style="--sc:#ffd75e"></span>Yellow</button>
+          <button type="button" class="swatch" data-color="Red"><span class="dot" style="--sc:#ff5a4d"></span>Red</button>
+          <button type="button" class="swatch" data-color="Green"><span class="dot" style="--sc:#46e08a"></span>Green</button>
+          <button type="button" class="swatch" data-color="Blue"><span class="dot" style="--sc:#4d9bff"></span>Blue</button>
+          <button type="button" class="swatch" data-color="Purple"><span class="dot" style="--sc:#b266ff"></span>Purple</button>
+        </div>
+        <input type="hidden" id="star_color" value="Yellow">
+      </div>
+      <div class="field"><label>Faction <button class="help-btn" type="button" data-help="faction" title="How to get this info">?</button></label>
+        <select id="faction"><option>Gek</option><option>Vy'keen</option><option>Korvax</option><option>Uncharted</option></select>
+      </div>
+      <div class="field"><label>Economy <span class="q">(galaxy map)</span> <button class="help-btn" type="button" data-help="economy" title="How to get this info">?</button></label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
+      <div class="field"><label>Conflict level <button class="help-btn" type="button" data-help="conflict" title="How to get this info">?</button></label><input type="text" id="conflict" placeholder="e.g. Tranquil"></div>
+      <div class="field" id="dissonant_field"><label>Dissonant planets? <button class="help-btn" type="button" data-help="dissonant" title="How to get this info">?</button></label>
+        <select id="dissonant"><option>No</option><option>Yes</option></select>
+        <p class="hint" id="dissonant_hint">Select Yes if any planet in the system has <span class="ds-term">"Dissonance Detected"</span> in its description.</p>
+      </div>
+      <div class="field" id="water_field" style="display:none"><label>Pure water <span class="q">(ocean)</span> worlds? <button class="help-btn" type="button" data-help="water" title="How to get this info">?</button></label>
+        <select id="water"><option>No</option><option>Yes</option></select>
+        <p class="hint">Only purple systems have full ocean worlds. Descriptions vary — if a planet is basically all water, you're fine.</p>
+      </div>
+      <div class="field"><label>Discovery date</label><input type="text" id="disc_date" placeholder="e.g. 3 June 2026"></div>
+      <div class="field"><label>Discoverer name</label><input type="text" id="disc_name" placeholder="In-game username"></div>
+      <div class="field"><label>Number of planets</label>
+        <select id="planet_count">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+          <option value="4" selected>4</option><option value="5">5</option><option value="6">6</option>
+          <option value="7">7</option><option value="8">8</option>
+        </select>
+      </div>
+      <div class="field"><label>Number of moons</label>
+        <select id="moon_count">
+          <option value="0" selected>0</option><option value="1">1</option>
+          <option value="2">2</option><option value="3">3</option><option value="4">4</option>
+        </select>
+      </div>
     </div>
+  </div>
+
+  <div class="panel">
+    <h2>Planetary Survey</h2>
+    <p class="note">Set the planet and moon counts above first, then fill in what you have — leave the rest blank.</p>
+    <div id="planet_rows"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Bases</h2>
+    <p class="note">Name each base to match its base-page title — they'll be linked under the Bases section (<span class="q">==Bases==</span>).</p>
+    <div class="field" style="max-width:220px"><label>Number of bases</label>
+      <select id="base_count">
+        <option value="0" selected>0</option>
+        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
+        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
+      </select>
+    </div>
+    <div id="base_rows" style="margin-top:11px"></div>
   </div>
 
   <div class="form-error" id="form_error"></div>
   <button class="btn-generate" onclick="buildOutput()">Generate wiki code</button>
 
   <div class="output-section" id="output_section">
-    <div class="output-head">Base record entry</div>
+    <div class="output-head">Galactic record entry</div>
     <div class="output-box" id="output_box"></div>
     <div class="output-actions">
       <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
@@ -391,16 +492,6 @@ const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
 
-/* Sanity-check a 12-glyph address (planet index 0–6; system index 1–0x2FF). */
-function addressIssue(s) {
-  const planet = parseInt(s[0], 16);
-  const sys = parseInt(s.slice(1, 4), 16);
-  if (planet > 6) return { hard: true, msg: `Planet index "${s[0]}" can't exist — a system has at most 6 planets (the 1st glyph should be 0–6).` };
-  if (sys === 0) return { hard: false, msg: "System index 000 isn't a real system — re-check glyphs 2–4." };
-  if (sys > 0x2FF) return { hard: false, msg: `System index ${s.slice(1, 4)} looks impossible — regions top out near 2FF (~767 systems). Double-check the address.` };
-  return null;
-}
-
 /* ---- Help content (text steps now; drop matching screenshots into a /help folder) ---- */
 const HELP_IMG_BASE = 'help/';
 const HELP = {
@@ -413,19 +504,45 @@ const HELP = {
   system_name: { title:'System name', steps:[
     "Found in your Discoveries and in the Galaxy Map menu.",
     "It also appears on-screen when you warp into the system."] },
-  planet_name: { title:'Planet name', steps:[
-    "A planet's name shows when you scan it, or select it in the Discoveries tab in the main menu."] },
-  moon: { title:'Moon', steps:[
-    "Only fill this in if the base is on a MOON, not a planet.",
-    "A moon's name shows when you scan it or select it in the Discoveries tab. Leave blank for planets."] },
-  axes: { title:'Coordinates (axes)', steps:[
-    "Stand at your base and open the Analysis Visor.",
-    "The planetary coordinates — two numbers like +51.01, -179.46 — are shown on the visor.",
-    "Enter them exactly as shown, including the + / − signs."], imgs:['axes.png'] },
+  star_class: { title:'Star class', steps:[
+    "Open the Galaxy Map and select your system.",
+    "The star's class (e.g. G4, F0p) is shown in the system info panel.",
+    "Type it here and the star colour auto-selects."], imgs:['star-class.png'] },
+  faction: { title:'Faction (dominant race)', steps:[
+    "On the Galaxy Map, select the system — the dominant lifeform (Gek, Vy'keen or Korvax) is listed.",
+    "It's also whoever runs the space station. Abandoned/Uncharted systems have none."], imgs:['faction.png'] },
+  economy: { title:'Economy', steps:[
+    "On the Galaxy Map, the system info panel shows the economy type and its wealth (e.g. Mining // Advanced).",
+    "An Economy Scanner ship upgrade shows it for every system on the map."], imgs:['economy.png'] },
+  conflict: { title:'Conflict level', steps:[
+    "The Galaxy Map system info panel lists the conflict level (e.g. Tranquil, Dangerous).",
+    "A Conflict Scanner ship upgrade shows it on the map."], imgs:['conflict.png'] },
+  dissonant: { title:'Dissonant planets', steps:[
+    "On the Galaxy Map, a dissonant system shows the word 'Dissonant' right next to the star class (an Economy Scanner upgrade reveals it).",
+    "Inside the system, scan each planet — a corrupted-Sentinel world shows 'Dissonance Detected' in its on-screen description.",
+    "If any planet shows that (or the system is flagged Dissonant), choose Yes.",
+    "Purple-star systems are always dissonant."] },
+  water: { title:'Pure water worlds', steps:[
+    "Only purple-star systems can have full ocean worlds.",
+    "Planet descriptions vary, so don't go by the label — if a planet is basically all ocean, it's a water world. Choose Yes if the system has one."] },
   glyphs: { title:'Portal glyphs', steps:[
     "Unlock Portal Glyphs through the story first.",
     "Then interact with any portal to read off its 12-glyph address.",
     "Click the glyphs on the dial here, or type the code in."] },
+  planet_name: { title:'Planet name', steps:[
+    "A planet's name shows when you scan it, or select it in the Discoveries tab in the main menu."] },
+  planet_type: { title:'Planet type', steps:[
+    "Scan the planet from space, or use your Analysis Visor, to see its type / biome (e.g. Lush, Toxic, Frozen)."] },
+  planet_weather: { title:'Extreme weather', steps:[
+    "The planet's info (Analysis Visor or discovery page) lists its weather.",
+    "Hazardous, storm-heavy worlds (scorching, frozen, toxic, radioactive) = Yes; calm/clear = No.",
+    "Fun fact: extreme worlds often carry activated minerals, like Activated Copper."] },
+  planet_sentinels: { title:'Aggressive sentinels', steps:[
+    "A planet's Sentinel level shows when you scan it (and in your Discoveries).",
+    "Choose Yes only if it reads 'Aggressive Sentinels' — those attack on sight. 'Low' or 'High' activity = No."] },
+  planet_resources: { title:'Resources', steps:[
+    "Scan the planet with your Analysis Visor — its main resources are listed.",
+    "Enter them separated by commas (e.g. Copper, Paraffinium, Sodium)."], imgs:['planet-resources.png'] },
   wiki: { title:'How to get this onto the wiki', steps:[
     "Copy the code above with the Copy button.",
     "On the wiki, click Add Page / Create New Page and type the exact page title.",
@@ -502,8 +619,103 @@ function firstBadField() {
   return null;
 }
 
-/* ---- Portal Address Resolver (glyph entry — base pages store the raw glyphs,
-       not decoded coordinates, so there's no coordinate readout here) ---- */
+/* ---- Planets & moons rows ---- */
+function buildRows() {
+  const pCount = parseInt(document.getElementById('planet_count').value);
+  const mCount = parseInt(document.getElementById('moon_count').value);
+  const total = pCount + mCount;
+  let html = '';
+  for (let i = 0; i < total; i++) {
+    const isMoon = i >= pCount;
+    const label = isMoon ? `Moon ${i - pCount + 1}` : `Planet ${i + 1}`;
+    const namePh = isMoon ? 'Moon name' : 'Planet name';
+    const typePh = isMoon ? 'e.g. Barren Moon' : 'e.g. Paradise Planet';
+    let orbitsField = '';
+    if (isMoon) {
+      let opts = '';
+      for (let p = 0; p < pCount; p++) opts += `<option value="${p}">Planet ${p + 1}</option>`;
+      orbitsField = `<div class="field"><label>Orbits which planet?</label><select id="p${i}_orbits">${opts}</select></div>`;
+    }
+    // show field helpers on the first planet only (they're identical for every planet)
+    const hb = key => i === 0 ? ` <button class="help-btn" type="button" data-help="${key}" title="How to get this info">?</button>` : '';
+    html += `<div class="planet-block">
+      <h4>${label}</h4>
+      <div class="planet-grid">
+        <div class="field"><label>Name${hb('planet_name')}</label><input type="text" id="p${i}_name" placeholder="${namePh}"></div>
+        <div class="field"><label>Type${hb('planet_type')}</label><input type="text" id="p${i}_type" placeholder="${typePh}"></div>
+        <div class="field"><label>Extreme weather?${hb('planet_weather')}</label><select id="p${i}_weather"><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label>Aggressive sentinels?${hb('planet_sentinels')}</label><select id="p${i}_sent"><option>No</option><option>Yes</option></select></div>
+        ${orbitsField}
+        <div class="field full-width"><label>Resources <span class="q">(comma separated)</span>${hb('planet_resources')}</label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
+        <div class="field full-width"><label>Notes <span class="q">(optional)</span></label><input type="text" id="p${i}_notes" placeholder="Any extra notes"></div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('planet_rows').innerHTML = html;
+  updateOrbitsOptions();
+}
+document.getElementById('planet_count').addEventListener('change', buildRows);
+document.getElementById('moon_count').addEventListener('change', buildRows);
+
+/* Show each planet's real name in the moon "orbits which planet?" dropdowns,
+   falling back to "Planet N" until a name is typed. */
+function updateOrbitsOptions() {
+  const pCount = parseInt(document.getElementById('planet_count').value);
+  const mCount = parseInt(document.getElementById('moon_count').value);
+  for (let m = pCount; m < pCount + mCount; m++) {
+    const sel = document.getElementById(`p${m}_orbits`);
+    if (!sel) continue;
+    for (let p = 0; p < pCount; p++) {
+      const opt = sel.options[p];
+      if (!opt) continue;
+      const nm = (document.getElementById(`p${p}_name`)?.value || '').trim();
+      opt.textContent = nm ? `Planet ${p + 1} — ${nm}` : `Planet ${p + 1}`;
+    }
+  }
+}
+document.getElementById('planet_rows').addEventListener('input', e => {
+  if (e.target.id && e.target.id.endsWith('_name')) updateOrbitsOptions();
+});
+buildRows();
+
+function buildBaseRows() {
+  const n = parseInt(document.getElementById('base_count').value);
+  let html = '';
+  for (let i = 0; i < n; i++) {
+    html += `<div class="field" style="margin-bottom:8px"><label>Base ${i + 1} name</label><input type="text" id="base${i}_name" placeholder="e.g. SLF Desert Base"></div>`;
+  }
+  document.getElementById('base_rows').innerHTML = html;
+}
+document.getElementById('base_count').addEventListener('change', buildBaseRows);
+buildBaseRows();
+
+/* ---- glyphs -> coordinates (verified against SLF - Ganggya-Opiu) ---- */
+const RE12 = /^[0-9A-F]{12}$/;
+const hx = (n, w) => ((n & ((1 << (4 * w)) - 1)) >>> 0).toString(16).toUpperCase().padStart(w, '0');
+function glyphsToCoords(glyphs) {
+  const s = glyphs.trim().toUpperCase();
+  if (!RE12.test(s)) throw new Error('Glyphs must be exactly 12 hex digits, e.g. 109BFE16D676');
+  const sss = s.slice(1,4), yy = s.slice(4,6), zzz = s.slice(6,9), xxx = s.slice(9,12);
+  const Xg = (parseInt(xxx,16) + 0x7FF) & 0xFFF;
+  const Yg = (parseInt(yy,16) - 0x81) & 0xFF;
+  const Zg = (parseInt(zzz,16) + 0x7FF) & 0xFFF;
+  const SSSS = parseInt('0' + sss, 16);
+  return hx(Xg,4) + ':' + hx(Yg,4) + ':' + hx(Zg,4) + ':' + hx(SSSS,4);
+}
+
+/* Sanity-check a 12-glyph address. Planet index must be 0–6; system index
+   1–0x2FF (regions hold ~767 systems max). X/Y/Z can't be out of range in a
+   12-glyph address (fixed digit widths), so they aren't checked. */
+function addressIssue(s) {
+  const planet = parseInt(s[0], 16);
+  const sys = parseInt(s.slice(1, 4), 16);
+  if (planet > 6) return { hard: true, msg: `Planet index "${s[0]}" can't exist — a system has at most 6 planets (the 1st glyph should be 0–6).` };
+  if (sys === 0) return { hard: false, msg: "System index 000 isn't a real system — re-check glyphs 2–4." };
+  if (sys > 0x2FF) return { hard: false, msg: `System index ${s.slice(1, 4)} looks impossible — regions top out near 2FF (~767 systems). Double-check the address.` };
+  return null;
+}
+
+/* ---- Portal Address Resolver (signature) ---- */
 function buildGlyphStrip() {
   let html = '';
   for (let i = 0; i < 12; i++) {
@@ -516,7 +728,7 @@ function buildGlyphStrip() {
 buildGlyphStrip();
 
 function updateResolver() {
-  const input = document.getElementById('b_glyphs');
+  const input = document.getElementById('glyphs');
   let s = input.value.toUpperCase().replace(/[^0-9A-F]/g, '').slice(0, 12);
   if (s !== input.value) input.value = s;
 
@@ -536,24 +748,37 @@ function updateResolver() {
     }
   });
 
+  const readout = document.getElementById('coord_readout');
   const status = document.getElementById('resolver_status');
+  const setCoords = (x, y, z, sys) => {
+    document.getElementById('cx').textContent = x;
+    document.getElementById('cy').textContent = y;
+    document.getElementById('cz').textContent = z;
+    document.getElementById('cs').textContent = sys;
+  };
+
   if (s.length === 12) {
+    const [x, y, z, sys] = glyphsToCoords(s).split(':');
+    setCoords(x, y, z, sys);
+    readout.classList.add('resolved');
     const issue = addressIssue(s);
     if (issue) {
       status.className = 'resolver-status err';
       status.textContent = issue.msg;
     } else {
       status.className = 'resolver-status ok';
-      status.textContent = 'Address complete — 12 glyphs entered.';
+      status.textContent = 'Address resolved — galactic coordinates locked.';
     }
   } else {
+    setCoords('––––', '––––', '––––', '––––');
+    readout.classList.remove('resolved');
     status.className = 'resolver-status';
     status.textContent = s.length === 0
-      ? "Optional — dial or type the system's 12 glyphs."
+      ? 'Awaiting address — dial or type 12 glyphs to resolve coordinates.'
       : `Address incomplete — ${s.length} of 12 glyphs entered.`;
   }
 }
-document.getElementById('b_glyphs').addEventListener('input', updateResolver);
+document.getElementById('glyphs').addEventListener('input', updateResolver);
 updateResolver();
 
 /* ---- Glyph dial pad (click to enter glyphs) ---- */
@@ -567,7 +792,7 @@ function buildGlyphPad() {
   }
   document.getElementById('dial_grid').innerHTML = html;
   document.querySelectorAll('.dial-key').forEach(k => k.addEventListener('click', () => {
-    const inp = document.getElementById('b_glyphs');
+    const inp = document.getElementById('glyphs');
     if (inp.value.length >= 12) return;
     inp.value = inp.value + k.dataset.hex;
     updateResolver();
@@ -575,13 +800,60 @@ function buildGlyphPad() {
 }
 buildGlyphPad();
 document.getElementById('dial_back').addEventListener('click', () => {
-  const inp = document.getElementById('b_glyphs'); inp.value = inp.value.slice(0, -1); updateResolver();
+  const inp = document.getElementById('glyphs'); inp.value = inp.value.slice(0, -1); updateResolver();
 });
 document.getElementById('dial_clear').addEventListener('click', () => {
-  document.getElementById('b_glyphs').value = ''; updateResolver();
+  document.getElementById('glyphs').value = ''; updateResolver();
 });
 
-/* ---- Build the base page (admin-approved format — do not reorder fields) ---- */
+/* ---- star colour swatches ---- */
+function setStarColor(color) {
+  document.getElementById('star_color').value = color;
+  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.color === color));
+  updatePurpleUI();
+}
+document.querySelectorAll('.swatch').forEach(s => s.addEventListener('click', () => setStarColor(s.dataset.color)));
+
+/* ---- auto-fill star colour from class ---- */
+const CLASS_COLOUR = {F:'Yellow',G:'Yellow',K:'Red',M:'Red',E:'Green',B:'Blue',O:'Blue',X:'Purple',Y:'Purple'};
+document.getElementById('star_class').addEventListener('input', function (e) {
+  const v = e.target.value.trim();
+  const col = CLASS_COLOUR[(v[0] || '').toUpperCase()];
+  if (col) setStarColor(col);
+  else if (!v) setStarColor('Yellow'); // class cleared -> back to default
+});
+
+/* ---- Purple = pure water worlds possible; also force-locks dissonant to Yes.
+       Dissonant is otherwise a free toggle, since dissonant planets can also
+       appear in normal systems. ---- */
+function updateDissonantUI() {
+  const f = document.getElementById('dissonant_field');
+  f.classList.toggle('danger', document.getElementById('dissonant').value === 'Yes');
+}
+document.getElementById('dissonant').addEventListener('change', updateDissonantUI);
+
+function updatePurpleUI() {
+  const isPurple = document.getElementById('star_color').value === 'Purple';
+  document.getElementById('water_field').style.display = isPurple ? '' : 'none';
+
+  const dis = document.getElementById('dissonant');
+  const field = document.getElementById('dissonant_field');
+  const hint = document.getElementById('dissonant_hint');
+  if (isPurple) {
+    dis.value = 'Yes'; dis.disabled = true;
+    field.classList.add('locked');
+    hint.textContent = 'Locked — purple-class systems are always dissonant.';
+  } else {
+    if (dis.disabled) dis.value = 'No';   // clear the purple-forced value on the way out
+    dis.disabled = false;
+    field.classList.remove('locked');
+    hint.innerHTML = 'Select Yes if any planet in the system has <span class="ds-term">"Dissonance Detected"</span> in its description.';
+  }
+  updateDissonantUI();
+}
+updatePurpleUI();
+
+/* ---- Build the wiki page (admin-approved format — do not reorder fields) ---- */
 function buildOutput() {
   // Keep slurs / profanity off the wiki before anything else.
   const fe = document.getElementById('form_error');
@@ -595,79 +867,173 @@ function buildOutput() {
   }
   fe.classList.remove('show');
 
-  const civ    = g('civ_name');
+  const prefix = g('prefix');
+  const civ = g('civ_name');
   const galaxy = g('galaxy');
   const region = g('region');
-  const builder= g('builder');
-  const name   = g('b_name')   || 'Base Name';
-  const system = g('b_system') || 'System Name';
-  const planet = g('b_planet') || 'Planet Name';
-  const moon   = g('b_moon');
-  const axes   = g('b_axes')   || '+0.00, +0.00';
+  const origName = g('orig_name');
+  const slfName = [prefix, origName || 'System Name'].filter(Boolean).join(' ');
 
-  // glyphs are optional here, but if started they must be a full 12-glyph address
-  let glyphsRaw = g('b_glyphs');
-  if (glyphsRaw && glyphsRaw.length !== 12) {
-    const status = document.getElementById('resolver_status');
+  // Portal glyphs only — the galactic coordinates are decoded from them automatically.
+  let glyphs = g('glyphs').toUpperCase();
+  const status = document.getElementById('resolver_status');
+  if (glyphs.length !== 12) {
     status.className = 'resolver-status err';
-    status.textContent = 'Finish the address (12 glyphs) or clear it to leave the location blank.';
+    status.textContent = 'Cannot generate — dial all 12 glyphs first (0–9, A–F).';
     document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-    document.getElementById('b_glyphs').focus();
+    document.getElementById('glyphs').focus();
     return;
   }
-  if (glyphsRaw) {
-    const issue = addressIssue(glyphsRaw);
-    if (issue && issue.hard) {
-      const status = document.getElementById('resolver_status');
-      status.className = 'resolver-status err';
-      status.textContent = 'Cannot generate — ' + issue.msg;
-      document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('b_glyphs').focus();
-      return;
+  let coords;
+  try {
+    coords = glyphsToCoords(glyphs);
+  } catch (err) {
+    status.className = 'resolver-status err';
+    status.textContent = 'Portal glyph problem: ' + err.message;
+    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
+    return;
+  }
+  const addrIssue = addressIssue(glyphs);
+  if (addrIssue && addrIssue.hard) {
+    status.className = 'resolver-status err';
+    status.textContent = 'Cannot generate — ' + addrIssue.msg;
+    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('glyphs').focus();
+    return;
+  }
+
+  // Purple-star systems are dissonant; dissonant planets can also appear in normal systems.
+  const isPurple = g('star_color') === 'Purple';
+  const dissonant = (isPurple || g('dissonant') === 'Yes') ? 'Yes' : '';
+  const water = isPurple ? g('water') : 'No';
+
+  const summary = "'''" + slfName + "''' is a [[star system]]" + (region ? " in the [[" + region + "]]" : "") + ".";
+
+  const pCount = parseInt(g('planet_count') || 4);
+  const mCount = parseInt(g('moon_count') || 0);
+  const total = pCount + mCount;
+  const discName = g('disc_name');
+  const discDate = g('disc_date') || 'dd month yyyy';
+
+  function bodyRow(i) {
+    const isMoon = i >= pCount;
+    const name = g(`p${i}_name`) || (isMoon ? `Moon ${i - pCount + 1}` : `Planet ${i + 1}`);
+    const type = g(`p${i}_type`) || '';
+    const weather = (document.getElementById(`p${i}_weather`)?.value || 'No').toUpperCase();
+    const sent = (document.getElementById(`p${i}_sent`)?.value || 'No').toUpperCase();
+    const res = g(`p${i}_res`) || '';
+    const notes = g(`p${i}_notes`) || '';
+
+    // Auto-link resources
+    const linkedRes = res.split(',').map(r => {
+      const t = r.trim();
+      return t ? `[[${t}]]` : '';
+    }).filter(Boolean).join(', ');
+
+    return `|-
+| [[File:nmsMisc_NotAvailable.png|150px]]
+| [[${name}]]
+| ${type}
+| ${weather}
+| ${sent}
+|-
+|colspan=2 | '''Resources''': ${linkedRes}
+|colspan=3 | '''Notes''': ${notes}
+`;
+  }
+
+  // Planets first, each immediately followed by the moons that orbit it
+  let planetRows = '';
+  for (let p = 0; p < pCount; p++) {
+    planetRows += bodyRow(p);
+    for (let m = pCount; m < total; m++) {
+      if (parseInt(document.getElementById(`p${m}_orbits`)?.value || '0', 10) === p) planetRows += bodyRow(m);
     }
   }
-  const glyphs = glyphsRaw || '000000000000';
-  const desc   = g('b_desc');
-  const info   = g('b_info');
-  // where the base sits — moon (noting its parent planet) if given, else the planet
-  const locBody = moon ? `[[${moon}]] (a moon of [[${planet}]])` : `[[${planet}]]`;
-  // region/galaxy trailer for the Location line — only the parts that are filled in
-  const locTrailer = [region ? `[[${region}]] region` : '', galaxy ? `[[${galaxy}]] galaxy` : ''].filter(Boolean).join(', ');
-  const summaryLine = [desc, `Located on ${locBody} in the [[${system}]] system.`].filter(Boolean).join(' ');
-  const locationLine = `Found on ${locBody} in the [[${system}]] system${locTrailer ? ', ' + locTrailer : ''}.`;
+  // Safety net: any moon whose parent planet no longer exists gets listed at the end
+  for (let m = pCount; m < total; m++) {
+    const parent = parseInt(document.getElementById(`p${m}_orbits`)?.value || '0', 10);
+    if (!(parent >= 0 && parent < pCount)) planetRows += bodyRow(m);
+  }
+
+  // Bases -> [[Base Name]] list
+  const baseCount = parseInt(g('base_count') || 0);
+  let basesBlock = '';
+  for (let i = 0; i < baseCount; i++) {
+    const bn = g(`base${i}_name`);
+    if (bn) basesBlock += `[[${bn}]]\n`;
+  }
+  basesBlock = basesBlock.trimEnd();
+
+  const coordParts = coords.replace(/:/g, '|');
 
   const output = `{{Version|Swarm}}
-<small>''Page created using the Space Link Base Creator''</small>
-{{Base infobox
-| name = ${name}
+<small>''Page created using the Space Link System Atlas''</small>
+{{System infobox
+| name = ${slfName}
 | image = nmsMisc_NotAvailable.png
 | galaxy = ${galaxy}
 | region = ${region}
-| system = ${system}
-| planet = ${planet}
-| moon = ${moon}
-| axes = ${axes}
+| multiplestars =
+| color = ${g('star_color')}
+| class = ${g('star_class')}
+| distance =
+| coordinates = ${coords}
+| planet = ${pCount}
+| moon = ${mCount}
+| water = ${water}
+| dissonant = ${dissonant}
+| gateway = Yes
+| faction = ${g('faction')}
+| economy = ${g('economy')}
+| economysell =
+| economybuy =
+| wealth =
+| conflict = ${g('conflict')}
 | mode = Normal
-| platform = PS5, PC
 | civilized = ${civ}
-| builderlink = ${builder}
+| discoveredlink = ${discName}
 | release = Swarm
+| platform = PS5, PC
 }}
-
-'''${name}''' is a player base.
+'''${slfName}''' is a star system.
 
 ==Summary==
-${summaryLine}
+${summary}
 
-==Location==
-${locationLine}
+==Alias Names==
+{{aliasc|text=Original|name=${origName}}}
+{{aliasc|text=Current|name=${slfName}}}
 
-Coordinates: ${axes}
+==Discovery==
+Discovered by PC/PS explorer ''${discName}'' on ${discDate}.
 
-Portal glyphs: {{Gl|${glyphs}}}
+==Planets & Moons==
+{| class="article-table" style="width:100%; max-width: 1000px;"
+|-
+! width=150 | Planet Image
+! Planet Name
+! width=200 | Type
+! width=150 | Extreme<br/>Weather
+! width=150 | Aggressive<br/>Sentinels
+${planetRows}|}
+
+==Location Information==
+===Coordinates===
+{{coords|${coordParts}}}
+
+===Glyphs===
+{{Gl|${glyphs}}}
+
+===Navigation Images===
+
+===System Location===
+
+==Bases==
+${basesBlock}
 
 ==Additional Information==
-${info}
+${civ ? `Claimed by the [[${civ}]].` : ''}
 
 ==Gallery==
 <gallery>

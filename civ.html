@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Space Link Base Creator</title>
+  <title>Space Link Civ Registry</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Share+Tech+Mono&display=swap');
 
@@ -67,15 +67,16 @@
       height:1px; margin:1.4rem auto 0; max-width:520px;
       background:linear-gradient(90deg, transparent, var(--line) 12%, var(--visor-dim) 50%, var(--line) 88%, transparent);
     }
+    .nav-row { margin-top:1.4rem; display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap; }
     .nav-chip {
-      display:inline-flex; align-items:center; gap:.5em; margin-top:1.4rem;
+      display:inline-flex; align-items:center; gap:.5em;
       font-family:var(--f-display); text-transform:uppercase; letter-spacing:.16em; font-size:.7rem;
       color:var(--blue); text-decoration:none; border:1px solid var(--line);
       padding:8px 16px; border-radius:3px; transition:border-color .2s, box-shadow .2s, color .2s;
     }
     .nav-chip:hover { border-color:var(--blue); color:var(--text); box-shadow:0 0 16px #2d7bff44; }
 
-    /* ---- Portal Address Resolver (two self-sizing modules) ---- */
+    /* ---- Portal Address Resolver (the signature) ---- */
     .resolver { margin-bottom:1.6rem; }
     .resolver-head {
       display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;
@@ -155,6 +156,14 @@
     }
     .dial-btn:hover { border-color:var(--visor-dim); color:var(--text); }
 
+    .coord-readout {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
+      background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;
+    }
+    .coord-cell { background:var(--void2); padding:.7rem .4rem; text-align:center; }
+    .coord-cell .k { font-family:var(--f-display); font-size:.58rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; }
+    .coord-cell .v { font-family:var(--f-mono); font-size:1.15rem; color:var(--text); margin-top:.25rem; letter-spacing:.04em; }
+    .coord-readout.resolved .coord-cell .v { color:var(--visor); text-shadow:0 0 14px #45e6de55; }
     .resolver-status {
       margin-top:.85rem; font-size:.74rem; letter-spacing:.05em; color:var(--hint);
       display:flex; align-items:center; gap:.5em;
@@ -187,23 +196,24 @@
       font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
       text-transform:uppercase; color:var(--dim); display:inline-flex; align-items:center; flex-wrap:wrap;
     }
-    /* qualifier in a label, e.g. "(in-game)" — mono so the parentheses render curved */
+    /* qualifier in a label, e.g. "(optional)" — mono so the parentheses render curved */
     .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--note); }
-    .field input, .field select {
+    .field input, .field select, .field textarea {
       background:var(--input); border:1px solid var(--line); border-radius:4px; color:var(--text);
       font-family:var(--f-mono); font-size:.86rem; padding:8px 10px; width:100%;
       transition:border-color .2s, box-shadow .2s;
     }
-    .field input:focus, .field select:focus {
+    .field textarea { min-height:104px; resize:vertical; line-height:1.55; }
+    .field input:focus, .field select:focus, .field textarea:focus {
       outline:none; border-color:var(--blue); box-shadow:0 0 0 1px var(--blue), 0 0 14px #2d7bff2e;
     }
     .field select option { background:var(--panel-soft); }
-    .field input::placeholder { color:var(--faint); }
+    .field input::placeholder, .field textarea::placeholder { color:var(--faint); }
     .full-width { grid-column:1/-1; }
     .hint { font-size:.68rem; color:var(--hint); letter-spacing:.03em; line-height:1.4; }
     .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
 
-    /* ---- "How to get this info" helper button (bright white circle, blue ?) ---- */
+    /* ---- "How to get this info" helper button (plain white ?) ---- */
     .help-btn {
       margin-left:.4em; vertical-align:middle; flex:none;
       border:none; background:transparent; color:#fff; cursor:pointer;
@@ -296,7 +306,10 @@
     .wiki-howto:hover { color:var(--text); }
 
     @media (max-width:760px) { .resolver-body { grid-template-columns:1fr; } }
-    @media (max-width:560px) { .glyph-strip { grid-template-columns:repeat(6,1fr); } }
+    @media (max-width:560px) {
+      .glyph-strip { grid-template-columns:repeat(6,1fr); }
+      .coord-readout { grid-template-columns:repeat(2,1fr); }
+    }
     @media (prefers-reduced-motion: reduce) {
       * { transition:none !important; animation:none !important; }
     }
@@ -305,28 +318,34 @@
 <body>
 <div class="container">
   <header>
-    <div class="eyebrow">Planetary Construction Log</div>
-    <h1><span class="hex">Space Link</span> Base Creator</h1>
+    <div class="eyebrow">Civilization Registry Terminal</div>
+    <h1><span class="hex">Space Link</span> Civ Registry</h1>
     <div class="scanline"></div>
-    <div style="margin-top:1.4rem; display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap;">
-      <a class="nav-chip" href="index.html" style="margin-top:0">⌂ Hub</a>
-      <a class="nav-chip" href="atlas.html" style="margin-top:0">Space Link System Atlas →</a>
-      <a class="nav-chip" href="civ.html" style="margin-top:0">Space Link Civ Registry →</a>
+    <div class="nav-row">
+      <a class="nav-chip" href="index.html">⌂ Hub</a>
+      <a class="nav-chip" href="atlas.html">Space Link System Atlas →</a>
+      <a class="nav-chip" href="base.html">Space Link Base Creator →</a>
     </div>
   </header>
 
-  <!-- SIGNATURE: Portal Address Resolver (the base's home system) -->
+  <!-- SIGNATURE: Portal Address Resolver (capital system) -->
   <div class="resolver">
     <div class="resolver-head">
-      <span class="title">⬡ System Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
+      <span class="title">⬡ Capital Portal Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
       <span class="sub">Click glyphs, or type the address</span>
     </div>
     <div class="resolver-body">
       <div class="decoder">
-        <input type="text" id="b_glyphs" class="glyph-input" maxlength="12" autocomplete="off" spellcheck="false"
-               placeholder="DIAL 12 GLYPHS · e.g. 10B3FE16D676">
+        <input type="text" id="glyphs" class="glyph-input" maxlength="12" autocomplete="off" spellcheck="false"
+               placeholder="DIAL 12 GLYPHS · e.g. 109BFE16D676">
         <div class="glyph-strip" id="glyph_strip"></div>
-        <div class="resolver-status" id="resolver_status">Optional — dial or type the system's 12 glyphs.</div>
+        <div class="coord-readout" id="coord_readout">
+          <div class="coord-cell"><div class="k">X</div><div class="v" id="cx">––––</div></div>
+          <div class="coord-cell"><div class="k">Y</div><div class="v" id="cy">––––</div></div>
+          <div class="coord-cell"><div class="k">Z</div><div class="v" id="cz">––––</div></div>
+          <div class="coord-cell"><div class="k">System</div><div class="v" id="cs">––––</div></div>
+        </div>
+        <div class="resolver-status" id="resolver_status">Awaiting address — dial or type your capital system's 12 glyphs.</div>
       </div>
       <div class="dial">
         <div class="dial-label">⬡ Glyph Dial</div>
@@ -340,34 +359,84 @@
   </div>
 
   <div class="panel">
-    <h2>Identification</h2>
-    <p class="note">These name your civ on the wiki. Set them once and they carry through every page.</p>
+    <h2>Civilization Identity</h2>
+    <p class="note">These fill the <span class="q">{{Civilized Space infobox}}</span> and name your civ across the page.</p>
     <div class="field-grid">
-      <div class="field"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
+      <div class="field full-width"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
+      <div class="field"><label>Short name <span class="q">(optional — used in prose)</span></label><input type="text" id="short_name" placeholder="e.g. Federation"></div>
+      <div class="field"><label>Banner template <span class="q">(optional)</span></label><input type="text" id="banner" placeholder="e.g. Banner SLF — blank if none"></div>
+      <div class="field"><label>Infobox image <span class="q">(filename)</span></label><input type="text" id="image" placeholder="e.g. nmsMisc_NotAvailable.png"></div>
       <div class="field"><label>Galaxy <button class="help-btn" type="button" data-help="galaxy" title="How to get this info">?</button></label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
+      <div class="field"><label>Quadrant <span class="q">(optional)</span></label><input type="text" id="quadrant" placeholder="e.g. Beta"></div>
       <div class="field"><label>Region <button class="help-btn" type="button" data-help="region" title="How to get this info">?</button></label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
-      <div class="field"><label>Builder name <span class="q">(in-game)</span></label><input type="text" id="builder" placeholder="e.g. KING-MINION2"></div>
+      <div class="field"><label>Capital system <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="capital_system" placeholder="e.g. SLF - Ganggya-Opiu"></div>
+      <div class="field"><label>Capital planet <button class="help-btn" type="button" data-help="planet_name" title="How to get this info">?</button></label><input type="text" id="capital_planet" placeholder="e.g. Oine Tau"></div>
     </div>
   </div>
 
   <div class="panel">
-    <h2>Base Data</h2>
+    <h2>Government &amp; Founder</h2>
     <div class="field-grid">
-      <div class="field"><label>Base name</label><input type="text" id="b_name" placeholder="e.g. SLF Desert Base"></div>
-      <div class="field"><label>System name <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="b_system" placeholder="e.g. SLF - Guncam"></div>
-      <div class="field"><label>Planet name <button class="help-btn" type="button" data-help="planet_name" title="How to get this info">?</button></label><input type="text" id="b_planet" placeholder="e.g. Edleri Sennu"></div>
-      <div class="field"><label>Moon <span class="q">(only if base is on a moon)</span> <button class="help-btn" type="button" data-help="moon" title="How to get this info">?</button></label><input type="text" id="b_moon" placeholder="e.g. moon name"></div>
-      <div class="field full-width"><label>Coordinates <span class="q">(axes — from the analysis visor)</span> <button class="help-btn" type="button" data-help="axes" title="How to get this info">?</button></label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
-      <div class="field full-width"><label>Short description</label><input type="text" id="b_desc" placeholder="e.g. Habitation outpost on an extreme desert planet."></div>
-      <div class="field full-width"><label>Additional info</label><input type="text" id="b_info" placeholder="e.g. Built by the Space Link Federation as an outpost."></div>
+      <div class="field"><label>Government</label><input type="text" id="government" placeholder="e.g. Federation"></div>
+      <div class="field"><label>Civ size</label><input type="text" id="civsize" placeholder="e.g. Solo, Small, Large"></div>
+      <div class="field"><label>Civ type <span class="q">(optional)</span></label><input type="text" id="civtype" placeholder="e.g. Explorers"></div>
+      <div class="field"><label>Founder <span class="q">(optional)</span></label><input type="text" id="founder" placeholder="Display name"></div>
+      <div class="field"><label>Founder in-game name</label><input type="text" id="founderlink" placeholder="e.g. KING-MINION2"></div>
+      <div class="field"><label>Leader <span class="q">(optional)</span></label><input type="text" id="leader" placeholder="If different from founder"></div>
+      <div class="field"><label>Federation <span class="q">(optional)</span></label><input type="text" id="federation" placeholder="Parent federation, if any"></div>
+      <div class="field"><label>UN42 <span class="q">(optional)</span></label><input type="text" id="un42" placeholder="Leave blank if unsure"></div>
+      <div class="field"><label>Platform</label><input type="text" id="platform" placeholder="e.g. PS5, PC"></div>
+      <div class="field"><label>Release</label><input type="text" id="release" value="Swarm"></div>
     </div>
+  </div>
+
+  <div class="panel">
+    <h2>Summary &amp; Mission</h2>
+    <p class="note">The opening line is built automatically <span class="q">("&lt;civ&gt; is a Civilized space community…")</span> — write the rest of the story below.</p>
+    <div class="field-grid">
+      <div class="field full-width"><label>Summary <span class="q">(your civ's story / lore)</span></label>
+        <textarea id="summary_body" placeholder="Who you are, your purpose, your colours, your story. Write as many paragraphs as you like — a closing in-character quote works well too."></textarea></div>
+      <div class="field full-width"><label>Mission</label>
+        <textarea id="mission" placeholder="e.g. Our mission is to explore, create, and document as much as we can…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>History &amp; Location</h2>
+    <p class="note">Give a founding date and I'll write the first History sentence; Location is built from your region, galaxy and capital details.</p>
+    <div class="field-grid">
+      <div class="field"><label>Founded date</label><input type="text" id="founded_date" placeholder="e.g. June 3rd 2026"></div>
+      <div class="field"><label>Distance from core <span class="q">(ly)</span></label><input type="text" id="distance" placeholder="e.g. 677,000"></div>
+      <div class="field"><label>Galactic position</label><input type="text" id="position" placeholder="e.g. outer rim"></div>
+      <div class="field full-width"><label>History <span class="q">(extra founding details — optional)</span></label>
+        <textarea id="history_body" placeholder="What inspired it, early milestones, who joined first…"></textarea></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Membership &amp; Naming</h2>
+    <p class="note">Naming convention is built from your prefix; membership from your member term and Discord.</p>
+    <div class="field-grid">
+      <div class="field"><label>System name prefix</label><input type="text" id="prefix" placeholder="e.g. SLF"></div>
+      <div class="field"><label>Members are called…</label><input type="text" id="member_term" placeholder="e.g. Travellers"></div>
+      <div class="field full-width"><label>Discord invite <span class="q">(optional)</span></label><input type="text" id="discord" placeholder="e.g. https://discord.gg/…"></div>
+      <div class="field full-width"><label>Membership details <span class="q">(optional — your civ's own policy)</span></label>
+        <textarea id="membership_body" placeholder="Describe who can join and how — in your civ's own words. e.g. Open to all Travellers regardless of race, platform, or playstyle. / Invite-only; apply in our Discord."></textarea></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Additional Information</h2>
+    <p class="note">One bullet per line. Each line becomes a wiki bullet point.</p>
+    <div class="field full-width"><label>Bullets <span class="q">(optional)</span></label>
+      <textarea id="extra_info" placeholder="Discord: https://discord.gg/…&#10;Members welcome to build anywhere in the region.&#10;The civ does not engage in hostile interactions."></textarea></div>
   </div>
 
   <div class="form-error" id="form_error"></div>
   <button class="btn-generate" onclick="buildOutput()">Generate wiki code</button>
 
   <div class="output-section" id="output_section">
-    <div class="output-head">Base record entry</div>
+    <div class="output-head">Civilization charter</div>
     <div class="output-box" id="output_box"></div>
     <div class="output-actions">
       <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
@@ -391,17 +460,7 @@ const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
 
-/* Sanity-check a 12-glyph address (planet index 0–6; system index 1–0x2FF). */
-function addressIssue(s) {
-  const planet = parseInt(s[0], 16);
-  const sys = parseInt(s.slice(1, 4), 16);
-  if (planet > 6) return { hard: true, msg: `Planet index "${s[0]}" can't exist — a system has at most 6 planets (the 1st glyph should be 0–6).` };
-  if (sys === 0) return { hard: false, msg: "System index 000 isn't a real system — re-check glyphs 2–4." };
-  if (sys > 0x2FF) return { hard: false, msg: `System index ${s.slice(1, 4)} looks impossible — regions top out near 2FF (~767 systems). Double-check the address.` };
-  return null;
-}
-
-/* ---- Help content (text steps now; drop matching screenshots into a /help folder) ---- */
+/* ---- Help content (text steps now; drop matching screenshots into the shared /help folder) ---- */
 const HELP_IMG_BASE = 'help/';
 const HELP = {
   galaxy: { title:'Galaxy', steps:[
@@ -410,25 +469,19 @@ const HELP = {
   region: { title:'Region', steps:[
     "On the Galaxy Map, expand a system's info box to read its region.",
     "Systems on the map are grouped by region."] },
-  system_name: { title:'System name', steps:[
-    "Found in your Discoveries and in the Galaxy Map menu.",
-    "It also appears on-screen when you warp into the system."] },
-  planet_name: { title:'Planet name', steps:[
-    "A planet's name shows when you scan it, or select it in the Discoveries tab in the main menu."] },
-  moon: { title:'Moon', steps:[
-    "Only fill this in if the base is on a MOON, not a planet.",
-    "A moon's name shows when you scan it or select it in the Discoveries tab. Leave blank for planets."] },
-  axes: { title:'Coordinates (axes)', steps:[
-    "Stand at your base and open the Analysis Visor.",
-    "The planetary coordinates — two numbers like +51.01, -179.46 — are shown on the visor.",
-    "Enter them exactly as shown, including the + / − signs."], imgs:['axes.png'] },
+  system_name: { title:'Capital system name', steps:[
+    "Pick the system that holds your capital — it's found in your Discoveries and in the Galaxy Map menu.",
+    "Include your prefix if you use one (e.g. SLF - Ganggya-Opiu)."] },
+  planet_name: { title:'Capital planet name', steps:[
+    "A planet's name shows when you scan it, or select it in the Discoveries tab in the main menu.",
+    "Use the planet your capital base sits on."] },
   glyphs: { title:'Portal glyphs', steps:[
     "Unlock Portal Glyphs through the story first.",
-    "Then interact with any portal to read off its 12-glyph address.",
+    "Then interact with the portal in your capital system to read off its 12-glyph address.",
     "Click the glyphs on the dial here, or type the code in."] },
   wiki: { title:'How to get this onto the wiki', steps:[
     "Copy the code above with the Copy button.",
-    "On the wiki, click Add Page / Create New Page and type the exact page title.",
+    "On the wiki, click Add Page / Create New Page and type your civilization's exact name as the title.",
     "In the editor, switch to the SOURCE editor — open the pencil / ▾ menu (top-right) and choose 'Source editor'. Pasting only works here; the Visual editor won't read the code.",
     "Clear the box, paste the code, then click Publish / Save. Done."],
     imgs:['wiki-1.png','wiki-2.png','wiki-3.png','wiki-4.png'] }
@@ -438,8 +491,8 @@ function openHelp(key) {
   if (!h) return;
   document.getElementById('help_title').textContent = h.title;
   let html = '<ol>' + h.steps.map(s => `<li>${s}</li>`).join('') + '</ol>';
-  // Auto-load as many screenshots as exist: <key>-1.png, <key>-2.png, ... (up to 6).
-  // Missing ones remove themselves, so add 1, 2 or more per field — no code changes.
+  // Auto-load as many screenshots as exist: <key>-1.jpg, <key>-2.jpg, ... (up to 6).
+  // Missing ones remove themselves; .jpg is tried first with a .png fallback.
   for (let i = 1; i <= 6; i++) {
     html += `<img class="help-img" src="${HELP_IMG_BASE}${key}-${i}.jpg" alt="" onerror="this.src.endsWith('.jpg') ? this.src=this.src.slice(0,-4)+'.png' : this.remove()">`;
   }
@@ -454,8 +507,7 @@ document.addEventListener('click', e => {
 });
 document.getElementById('help_close').addEventListener('click', closeHelp);
 
-/* Click a help screenshot to view it full-size (screenshots are kept full on
-   purpose, so this lets the reader actually read them). */
+/* Click a help screenshot to view it full-size. */
 const _lb = document.getElementById('lightbox');
 const _lbImg = document.getElementById('lightbox_img');
 document.getElementById('help_body').addEventListener('click', e => {
@@ -467,9 +519,7 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Escape') { _lb.classList.remove('open'); closeHelp(); }
 });
 
-/* ---- Name filter: keep wiki pages clear of slurs / profanity ----
-   Substring list catches plurals/compounds; exact list is for short words
-   that would false-positive as substrings (e.g. "ass" in "assassin"). */
+/* ---- Name filter: keep wiki pages clear of slurs / profanity (scans inputs AND textareas) ---- */
 const BLOCK_SUB = ['fuck','shit','cunt','bitch','pussy','asshole','dickhead','motherfuck','bullshit',
   'whore','bollock','douche','nigger','nigga','faggot','retard','chink','gook','wetback','beaner',
   'sandnigger','raghead','towelhead','kike','spic','tranny','paki','zipperhead'];
@@ -491,19 +541,42 @@ function isBadText(text) {
   }
   return false;
 }
-// Coded fields are NOT names — skip them so e.g. star class "F4G" / "A55" aren't
-// misread as slurs by the de-leet step, and the hex glyph address isn't scanned.
-const FILTER_SKIP = new Set(['glyphs', 'b_glyphs', 'star_class', 'b_axes']);
+// Coded fields are NOT names — skip them (here: the hex glyph address).
+const FILTER_SKIP = new Set(['glyphs']);
 function firstBadField() {
-  for (const el of document.querySelectorAll('input[type="text"]')) {
+  for (const el of document.querySelectorAll('input[type="text"], textarea')) {
     if (FILTER_SKIP.has(el.id)) continue;
     if (isBadText(el.value)) return el;
   }
   return null;
 }
 
-/* ---- Portal Address Resolver (glyph entry — base pages store the raw glyphs,
-       not decoded coordinates, so there's no coordinate readout here) ---- */
+/* ---- glyphs -> coordinates (verified against SLF - Ganggya-Opiu) ---- */
+const RE12 = /^[0-9A-F]{12}$/;
+const hx = (n, w) => ((n & ((1 << (4 * w)) - 1)) >>> 0).toString(16).toUpperCase().padStart(w, '0');
+function glyphsToCoords(glyphs) {
+  const s = glyphs.trim().toUpperCase();
+  if (!RE12.test(s)) throw new Error('Glyphs must be exactly 12 hex digits, e.g. 109BFE16D676');
+  const sss = s.slice(1,4), yy = s.slice(4,6), zzz = s.slice(6,9), xxx = s.slice(9,12);
+  const Xg = (parseInt(xxx,16) + 0x7FF) & 0xFFF;
+  const Yg = (parseInt(yy,16) - 0x81) & 0xFF;
+  const Zg = (parseInt(zzz,16) + 0x7FF) & 0xFFF;
+  const SSSS = parseInt('0' + sss, 16);
+  return hx(Xg,4) + ':' + hx(Yg,4) + ':' + hx(Zg,4) + ':' + hx(SSSS,4);
+}
+
+/* Sanity-check a 12-glyph address. Planet index must be 0–6; system index
+   1–0x2FF (regions hold ~767 systems max). */
+function addressIssue(s) {
+  const planet = parseInt(s[0], 16);
+  const sys = parseInt(s.slice(1, 4), 16);
+  if (planet > 6) return { hard: true, msg: `Planet index "${s[0]}" can't exist — a system has at most 6 planets (the 1st glyph should be 0–6).` };
+  if (sys === 0) return { hard: false, msg: "System index 000 isn't a real system — re-check glyphs 2–4." };
+  if (sys > 0x2FF) return { hard: false, msg: `System index ${s.slice(1, 4)} looks impossible — regions top out near 2FF (~767 systems). Double-check the address.` };
+  return null;
+}
+
+/* ---- Portal Address Resolver (signature) ---- */
 function buildGlyphStrip() {
   let html = '';
   for (let i = 0; i < 12; i++) {
@@ -516,7 +589,7 @@ function buildGlyphStrip() {
 buildGlyphStrip();
 
 function updateResolver() {
-  const input = document.getElementById('b_glyphs');
+  const input = document.getElementById('glyphs');
   let s = input.value.toUpperCase().replace(/[^0-9A-F]/g, '').slice(0, 12);
   if (s !== input.value) input.value = s;
 
@@ -536,24 +609,37 @@ function updateResolver() {
     }
   });
 
+  const readout = document.getElementById('coord_readout');
   const status = document.getElementById('resolver_status');
+  const setCoords = (x, y, z, sys) => {
+    document.getElementById('cx').textContent = x;
+    document.getElementById('cy').textContent = y;
+    document.getElementById('cz').textContent = z;
+    document.getElementById('cs').textContent = sys;
+  };
+
   if (s.length === 12) {
+    const [x, y, z, sys] = glyphsToCoords(s).split(':');
+    setCoords(x, y, z, sys);
+    readout.classList.add('resolved');
     const issue = addressIssue(s);
     if (issue) {
       status.className = 'resolver-status err';
       status.textContent = issue.msg;
     } else {
       status.className = 'resolver-status ok';
-      status.textContent = 'Address complete — 12 glyphs entered.';
+      status.textContent = 'Address resolved — galactic coordinates locked.';
     }
   } else {
+    setCoords('––––', '––––', '––––', '––––');
+    readout.classList.remove('resolved');
     status.className = 'resolver-status';
     status.textContent = s.length === 0
-      ? "Optional — dial or type the system's 12 glyphs."
+      ? "Awaiting address — dial or type your capital system's 12 glyphs."
       : `Address incomplete — ${s.length} of 12 glyphs entered.`;
   }
 }
-document.getElementById('b_glyphs').addEventListener('input', updateResolver);
+document.getElementById('glyphs').addEventListener('input', updateResolver);
 updateResolver();
 
 /* ---- Glyph dial pad (click to enter glyphs) ---- */
@@ -567,7 +653,7 @@ function buildGlyphPad() {
   }
   document.getElementById('dial_grid').innerHTML = html;
   document.querySelectorAll('.dial-key').forEach(k => k.addEventListener('click', () => {
-    const inp = document.getElementById('b_glyphs');
+    const inp = document.getElementById('glyphs');
     if (inp.value.length >= 12) return;
     inp.value = inp.value + k.dataset.hex;
     updateResolver();
@@ -575,19 +661,19 @@ function buildGlyphPad() {
 }
 buildGlyphPad();
 document.getElementById('dial_back').addEventListener('click', () => {
-  const inp = document.getElementById('b_glyphs'); inp.value = inp.value.slice(0, -1); updateResolver();
+  const inp = document.getElementById('glyphs'); inp.value = inp.value.slice(0, -1); updateResolver();
 });
 document.getElementById('dial_clear').addEventListener('click', () => {
-  document.getElementById('b_glyphs').value = ''; updateResolver();
+  document.getElementById('glyphs').value = ''; updateResolver();
 });
 
-/* ---- Build the base page (admin-approved format — do not reorder fields) ---- */
+/* ---- Build the civ main page (admin-approved format — do not reorder fields) ---- */
 function buildOutput() {
   // Keep slurs / profanity off the wiki before anything else.
   const fe = document.getElementById('form_error');
   const badEl = firstBadField();
   if (badEl) {
-    fe.textContent = 'That name contains language that isn’t allowed on the wiki — please edit it before generating.';
+    fe.textContent = 'That text contains language that isn’t allowed on the wiki — please edit it before generating.';
     fe.classList.add('show');
     badEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
     badEl.focus();
@@ -595,86 +681,171 @@ function buildOutput() {
   }
   fe.classList.remove('show');
 
-  const civ    = g('civ_name');
-  const galaxy = g('galaxy');
-  const region = g('region');
-  const builder= g('builder');
-  const name   = g('b_name')   || 'Base Name';
-  const system = g('b_system') || 'System Name';
-  const planet = g('b_planet') || 'Planet Name';
-  const moon   = g('b_moon');
-  const axes   = g('b_axes')   || '+0.00, +0.00';
-
-  // glyphs are optional here, but if started they must be a full 12-glyph address
-  let glyphsRaw = g('b_glyphs');
-  if (glyphsRaw && glyphsRaw.length !== 12) {
-    const status = document.getElementById('resolver_status');
+  // Capital portal glyphs are required (coordinates + portalglyphs come from them).
+  let glyphs = g('glyphs').toUpperCase();
+  const status = document.getElementById('resolver_status');
+  if (glyphs.length !== 12) {
     status.className = 'resolver-status err';
-    status.textContent = 'Finish the address (12 glyphs) or clear it to leave the location blank.';
+    status.textContent = 'Cannot generate — dial all 12 glyphs of your capital system first.';
     document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-    document.getElementById('b_glyphs').focus();
+    document.getElementById('glyphs').focus();
     return;
   }
-  if (glyphsRaw) {
-    const issue = addressIssue(glyphsRaw);
-    if (issue && issue.hard) {
-      const status = document.getElementById('resolver_status');
-      status.className = 'resolver-status err';
-      status.textContent = 'Cannot generate — ' + issue.msg;
-      document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('b_glyphs').focus();
-      return;
-    }
+  let coords;
+  try {
+    coords = glyphsToCoords(glyphs);
+  } catch (err) {
+    status.className = 'resolver-status err';
+    status.textContent = 'Portal glyph problem: ' + err.message;
+    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
+    return;
   }
-  const glyphs = glyphsRaw || '000000000000';
-  const desc   = g('b_desc');
-  const info   = g('b_info');
-  // where the base sits — moon (noting its parent planet) if given, else the planet
-  const locBody = moon ? `[[${moon}]] (a moon of [[${planet}]])` : `[[${planet}]]`;
-  // region/galaxy trailer for the Location line — only the parts that are filled in
-  const locTrailer = [region ? `[[${region}]] region` : '', galaxy ? `[[${galaxy}]] galaxy` : ''].filter(Boolean).join(', ');
-  const summaryLine = [desc, `Located on ${locBody} in the [[${system}]] system.`].filter(Boolean).join(' ');
-  const locationLine = `Found on ${locBody} in the [[${system}]] system${locTrailer ? ', ' + locTrailer : ''}.`;
+  const addrIssue = addressIssue(glyphs);
+  if (addrIssue && addrIssue.hard) {
+    status.className = 'resolver-status err';
+    status.textContent = 'Cannot generate — ' + addrIssue.msg;
+    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
+    document.getElementById('glyphs').focus();
+    return;
+  }
+
+  const name = g('civ_name') || 'Civilization Name';
+  const short = g('short_name') || name;   // demonym for prose, falls back to full name
+  const galaxy = g('galaxy');
+  const region = g('region');
+  const image = g('image') || 'nmsMisc_NotAvailable.png';
+
+  // Optional civ banner template (other civs won't have one).
+  let bannerLine = '';
+  const banner = g('banner').replace(/[{}]/g, '').trim();
+  if (banner) bannerLine = '{{' + banner + '}}\n';
+
+  // ---- Summary ----
+  let summaryLead = `'''${name}''' is a [[Civilized space]] community.`;
+  if (region && galaxy) summaryLead += ` It is located in the [[${region}]] region of the [[${galaxy}]] galaxy.`;
+  else if (region) summaryLead += ` It is located in the [[${region}]] region.`;
+  const summaryBody = g('summary_body');
+
+  const mission = g('mission');
+
+  // ---- History (auto first sentence from founding details + freeform body) ----
+  const foundedDate = g('founded_date');
+  const founderName = g('founderlink') || g('founder');
+  let historyLead = '';
+  if (foundedDate) {
+    historyLead = `The ${short} was founded on ${foundedDate}`;
+    if (founderName) historyLead += ` by ${founderName}`;
+    if (region && galaxy) historyLead += ` in the [[${region}]] region of [[${galaxy}]]`;
+    else if (region) historyLead += ` in the [[${region}]] region`;
+    historyLead += '.';
+  }
+  const historyBody = g('history_body');
+  const history = [historyLead, historyBody].filter(Boolean).join('\n\n');
+
+  // ---- Location (auto) ----
+  const capSystem = g('capital_system');
+  const capPlanet = g('capital_planet');
+  const distance = g('distance');
+  const position = g('position');
+  let hq = `The ${short} is headquartered`;
+  if (region && galaxy) hq += ` in the [[${region}]] region of the [[${galaxy}]] galaxy`;
+  else if (region) hq += ` in the [[${region}]] region`;
+  else if (galaxy) hq += ` in the [[${galaxy}]] galaxy`;
+  if (distance) {
+    hq += `, approximately ${distance} light-years from the galactic core`;
+    if (position) hq += ` in the ${position}`;
+  }
+  hq += '.';
+  let locationBlock = hq + '\n\n';
+  if (capSystem) locationBlock += `Capital system: [[${capSystem}]]\n\n`;
+  if (capPlanet) locationBlock += `Capital planet: ${capPlanet}\n\n`;
+  locationBlock += `Portal glyphs: {{Gl|${glyphs}}}`;
+
+  // ---- Naming convention (auto from prefix) ----
+  const prefix = g('prefix');
+  const memberTerm = g('member_term');
+  let naming = '';
+  if (prefix) {
+    naming = `All ${short}-claimed star systems are prefixed with '''${prefix}''' followed by a dash and the system name (e.g. ''${prefix} - System Name''). This makes ${short} territory easy to identify at a glance.`;
+  }
+
+  // ---- Membership (auto) ----
+  // Membership is the civ's own description — no fabricated policy. Only the
+  // member-term line and Discord line are auto-added, and only if provided.
+  const discord = g('discord');
+  const membershipBody = g('membership_body');
+  const memParts = [];
+  if (membershipBody) memParts.push(membershipBody);
+  if (memberTerm) memParts.push(`Members are called '''${memberTerm}'''.`);
+  if (discord) memParts.push(`To join, visit the ${short} Discord: ${discord}`);
+  const membership = memParts.join('\n\n');
+
+  // ---- Additional information bullets ----
+  const extra = g('extra_info');
+  let extraBlock = '';
+  if (extra) {
+    extraBlock = extra.split('\n').map(l => l.trim()).filter(Boolean)
+      .map(l => l.startsWith('*') ? l : '* ' + l).join('\n');
+  }
 
   const output = `{{Version|Swarm}}
-<small>''Page created using the Space Link Base Creator''</small>
-{{Base infobox
+<small>''Page created using the Space Link Civ Registry''</small>
+${bannerLine}{{Civilized Space infobox
 | name = ${name}
-| image = nmsMisc_NotAvailable.png
+| image = ${image}
 | galaxy = ${galaxy}
+| quadrant = ${g('quadrant')}
 | region = ${region}
-| system = ${system}
-| planet = ${planet}
-| moon = ${moon}
-| axes = ${axes}
-| mode = Normal
-| platform = PS5, PC
-| civilized = ${civ}
-| builderlink = ${builder}
-| release = Swarm
+| system = ${capSystem}
+| planet = ${capPlanet}
+| coordinates = ${coords}
+| portalglyphs = {{Gl/Small|${glyphs}}}
+| government = ${g('government')}
+| civsize = ${g('civsize')}
+| civtype = ${g('civtype')}
+| founder = ${g('founder')}
+| founderlink = ${g('founderlink')}
+| leader = ${g('leader')}
+| federation = ${g('federation')}
+| un42 = ${g('un42')}
+| platform = ${g('platform')}
+| release = ${g('release') || 'Swarm'}
 }}
-
-'''${name}''' is a player base.
+'''${name}''' is a civilized space community.
 
 ==Summary==
-${summaryLine}
+${summaryLead}${summaryBody ? '\n\n' + summaryBody : ''}
+
+===Mission===
+${mission}
+
+==History==
+${history}
 
 ==Location==
-${locationLine}
+${locationBlock}
 
-Coordinates: ${axes}
+==Naming convention==
+${naming}
 
-Portal glyphs: {{Gl|${glyphs}}}
+==Membership==
+${membership}
 
-==Additional Information==
-${info}
+==Discovered systems==
+{{CARGOCivSystems|${name}|limit=10}}
+
+==Bases==
+{{CARGOBaseCiv|${name}}}
 
 ==Gallery==
-<gallery>
-nmsMisc_NotAvailable.png|Caption of the image
-</gallery>`;
 
-  document.getElementById('output_box').textContent = output;
+==Additional information==
+${extraBlock}
+
+[[Category:${name}| ]]`;
+
+  // Strip trailing whitespace so blank infobox fields read "| field =" (not "| field = ").
+  document.getElementById('output_box').textContent = output.replace(/[ \t]+$/gm, '');
   const sec = document.getElementById('output_section');
   sec.classList.add('visible');
   sec.scrollIntoView({ behavior: 'smooth' });

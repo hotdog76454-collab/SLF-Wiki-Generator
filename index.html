@@ -3,11 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Space Link System Atlas</title>
+  <title>Space Link Toolkit</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700&family=Share+Tech+Mono&display=swap');
 
-    /* Authentic NMS in-game menu typeface (NMSCD community webfont) */
     @font-face {
       font-family: 'NMSGeoSans';
       src: url('https://font.nmscd.com/assets/font/NMSGeoSans_Kerned/Web-TT/NMSGeoSans_Kerned.woff') format('woff');
@@ -22,8 +21,7 @@
       --visor:#45E6DE; --visor-dim:#1f8c89;
       --hazard:#FF7A3C; --dissonant:#BF7BFF;
       --text:#D2E2F6; --dim:#5E7CA3; --faint:#39537b;
-      --note:#A6C0E0; --hint:#8AA6CC;
-      --mint:#5BE6B0;
+      --note:#A6C0E0; --hint:#8AA6CC; --mint:#5BE6B0;
       --input:#0A1422;
       --f-display:'NMSGeoSans','Orbitron',sans-serif;
       --f-mono:'Share Tech Mono',monospace;
@@ -32,1025 +30,164 @@
     * { box-sizing:border-box; margin:0; padding:0; }
 
     body {
-      background:var(--void);
-      color:var(--text);
-      font-family:var(--f-mono);
-      min-height:100vh;
-      padding:2.5rem 1rem 4rem;
-      -webkit-font-smoothing:antialiased;
+      background:var(--void); color:var(--text); font-family:var(--f-mono);
+      min-height:100vh; padding:3.5rem 1rem 4rem; -webkit-font-smoothing:antialiased;
     }
-
     body::before {
-      content:'';
-      position:fixed; inset:0; z-index:0; pointer-events:none;
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none;
       background:
-        radial-gradient(ellipse at 18% 12%, #11366a33 0%, transparent 55%),
-        radial-gradient(ellipse at 85% 80%, #0a2a4d2e 0%, transparent 50%),
-        radial-gradient(circle at 50% -10%, #1a4fa81f 0%, transparent 45%);
+        radial-gradient(ellipse at 18% 10%, #11366a3a 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 85%, #0a2a4d33 0%, transparent 50%),
+        radial-gradient(circle at 50% -12%, #1a4fa824 0%, transparent 48%);
+    }
+    /* faint star field */
+    body::after {
+      content:''; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+      background-image:
+        radial-gradient(1px 1px at 12% 22%, #9fc4ff88, transparent),
+        radial-gradient(1px 1px at 70% 16%, #8fb6ff77, transparent),
+        radial-gradient(1px 1px at 33% 64%, #b9d6ff66, transparent),
+        radial-gradient(1px 1px at 88% 54%, #9fc4ff77, transparent),
+        radial-gradient(1px 1px at 52% 82%, #8fb6ff66, transparent),
+        radial-gradient(1px 1px at 22% 88%, #b9d6ff55, transparent);
     }
 
-    .container { max-width:940px; margin:0 auto; position:relative; z-index:1; }
+    .container { max-width:980px; margin:0 auto; position:relative; z-index:1; }
 
-    /* ---- Header ---- */
-    header { text-align:center; margin-bottom:2.25rem; }
+    /* ---- Hero ---- */
+    header { text-align:center; margin-bottom:3rem; }
     .eyebrow {
-      font-family:var(--f-display); font-size:.66rem; letter-spacing:.42em;
-      text-transform:uppercase; color:var(--visor-dim); margin-bottom:.7rem; padding-left:.42em;
+      font-family:var(--f-display); font-size:.7rem; letter-spacing:.46em;
+      text-transform:uppercase; color:var(--visor-dim); margin-bottom:1rem; padding-left:.46em;
     }
     header h1 {
       font-family:var(--f-display); font-weight:700;
-      font-size:clamp(1.5rem,5vw,2.5rem); letter-spacing:.16em; text-transform:uppercase;
-      color:var(--text); line-height:1; text-shadow:0 0 26px #45e6de33;
+      font-size:clamp(2rem,7vw,3.6rem); letter-spacing:.16em; text-transform:uppercase;
+      color:var(--text); line-height:1; text-shadow:0 0 34px #45e6de33;
     }
     header h1 .hex { color:var(--blue); }
     .scanline {
-      height:1px; margin:1.4rem auto 0; max-width:520px;
+      height:1px; margin:1.6rem auto 0; max-width:560px;
       background:linear-gradient(90deg, transparent, var(--line) 12%, var(--visor-dim) 50%, var(--line) 88%, transparent);
     }
-    .nav-chip {
-      display:inline-flex; align-items:center; gap:.5em; margin-top:1.4rem;
-      font-family:var(--f-display); text-transform:uppercase; letter-spacing:.16em; font-size:.7rem;
-      color:var(--blue); text-decoration:none; border:1px solid var(--line);
-      padding:8px 16px; border-radius:3px; transition:border-color .2s, box-shadow .2s, color .2s;
+    .tagline {
+      margin-top:1.4rem; font-size:.92rem; color:var(--note); letter-spacing:.03em; line-height:1.6;
+      max-width:560px; margin-left:auto; margin-right:auto;
     }
-    .nav-chip:hover { border-color:var(--blue); color:var(--text); box-shadow:0 0 16px #2d7bff44; }
 
-    /* ---- Portal Address Resolver (the signature) ---- */
-    /* Decoder + dial are two self-sizing modules, so neither column drags empty
-       space down beside the other. */
-    .resolver { margin-bottom:1.6rem; }
-    .resolver-head {
-      display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;
-      margin-bottom:1.1rem;
+    /* ---- Section label ---- */
+    .sec-label {
+      font-family:var(--f-display); text-transform:uppercase; letter-spacing:.28em;
+      font-size:.72rem; color:var(--visor); margin-bottom:1.2rem;
+      display:flex; align-items:center; gap:.7em;
     }
-    .resolver-head .title {
-      font-family:var(--f-display); text-transform:uppercase; letter-spacing:.24em;
-      font-size:.82rem; color:var(--visor);
-    }
-    .resolver-head .sub { font-size:.72rem; color:var(--hint); letter-spacing:.05em; }
+    .sec-label::before { content:'⬡'; color:var(--blue); }
+    .sec-label::after { content:''; flex:1; height:1px; background:linear-gradient(90deg, var(--line), transparent); }
 
-    .resolver-body { display:grid; grid-template-columns:1fr 248px; gap:1.4rem; align-items:start; }
-    .decoder, .dial {
-      position:relative;
-      background:linear-gradient(180deg, #0b1626, #081020);
-      border:1px solid var(--line); border-radius:6px;
-      padding:1.2rem 1.3rem; box-shadow:inset 0 0 50px #0a1c3422;
+    /* ---- Console tiles ---- */
+    .tiles { display:grid; grid-template-columns:repeat(3,1fr); gap:1.1rem; margin-bottom:2.6rem; }
+    .tile {
+      position:relative; display:flex; flex-direction:column; gap:.6rem;
+      background:linear-gradient(180deg, #0d1827, #091221);
+      border:1px solid var(--line); border-radius:8px; padding:1.5rem 1.4rem 1.4rem;
+      text-decoration:none; color:var(--text); overflow:hidden;
+      transition:border-color .2s, box-shadow .2s, transform .15s, background .2s;
     }
-    .decoder::before, .dial::before {
-      content:''; position:absolute; top:-1px; left:-1px; width:13px; height:13px;
+    .tile::before {
+      content:''; position:absolute; top:-1px; left:-1px; width:16px; height:16px;
       border-top:1.5px solid var(--visor); border-left:1.5px solid var(--visor); pointer-events:none;
     }
-    .decoder { min-width:0; }
+    .tile::after {
+      content:''; position:absolute; bottom:-1px; right:-1px; width:16px; height:16px;
+      border-bottom:1.5px solid var(--line); border-right:1.5px solid var(--line);
+      pointer-events:none; transition:border-color .2s;
+    }
+    .tile:hover {
+      border-color:var(--blue); transform:translateY(-3px);
+      box-shadow:0 14px 38px #02050a88, 0 0 26px #2d7bff33; background:linear-gradient(180deg, #102036, #0a1426);
+    }
+    .tile:hover::after { border-color:var(--visor); }
+    .tile-top { display:flex; align-items:center; justify-content:space-between; }
+    .tile-sym {
+      font-size:1.7rem; color:var(--visor); line-height:1; filter:drop-shadow(0 0 10px #45e6de55);
+    }
+    .tile-idx {
+      font-family:var(--f-display); font-size:.6rem; letter-spacing:.22em; color:var(--faint);
+      text-transform:uppercase;
+    }
+    .tile-name {
+      font-family:var(--f-display); font-size:1.02rem; font-weight:600; letter-spacing:.1em;
+      text-transform:uppercase; color:var(--text); margin-top:.5rem;
+    }
+    .tile-name .hex { color:var(--blue); }
+    .tile-desc { font-size:.78rem; color:var(--hint); line-height:1.6; flex:1; }
+    .tile-go {
+      font-family:var(--f-display); font-size:.68rem; letter-spacing:.18em; text-transform:uppercase;
+      color:var(--visor); margin-top:.8rem; transition:gap .2s; display:inline-flex; gap:.4em;
+    }
+    .tile:hover .tile-go { gap:.9em; }
 
-    .glyph-input {
-      width:100%; background:var(--input); border:1px solid var(--line); border-radius:4px;
-      color:var(--text); font-family:var(--f-mono); font-size:1.05rem; letter-spacing:.5em;
-      text-transform:uppercase; padding:11px 14px; text-align:center; margin-bottom:1.1rem;
-      transition:border-color .2s, box-shadow .2s;
+    /* ---- Secondary links ---- */
+    .links { display:flex; flex-wrap:wrap; gap:.8rem; }
+    .link-chip {
+      display:inline-flex; align-items:center; gap:.6em; flex:1; min-width:200px; justify-content:center;
+      font-family:var(--f-display); text-transform:uppercase; letter-spacing:.14em; font-size:.72rem;
+      color:var(--blue); text-decoration:none; border:1px solid var(--line);
+      padding:13px 18px; border-radius:5px; background:var(--panel);
+      transition:border-color .2s, box-shadow .2s, color .2s, background .2s;
     }
-    .glyph-input:focus { outline:none; border-color:var(--visor); box-shadow:0 0 0 1px var(--visor), 0 0 22px #45e6de33; }
-    .glyph-input::placeholder { color:var(--faint); letter-spacing:.3em; }
+    .link-chip:hover { border-color:var(--blue); color:var(--text); box-shadow:0 0 16px #2d7bff33; background:var(--panel-soft); }
+    .link-chip .ls { color:var(--visor); font-size:1rem; }
 
-    .glyph-strip { display:grid; grid-template-columns:repeat(12,1fr); gap:7px; margin-bottom:1.2rem; }
-    .glyph-cell {
-      aspect-ratio:1/1.12; background:var(--line-soft); padding:1px;
-      clip-path:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
-      transition:background .25s, transform .25s;
+    footer {
+      margin-top:3rem; text-align:center; font-size:.68rem; color:var(--faint); letter-spacing:.05em; line-height:1.7;
     }
-    .glyph-inner {
-      width:100%; height:100%; background:var(--void2);
-      clip-path:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
-      display:flex; align-items:center; justify-content:center; position:relative;
-    }
-    .glyph-cell.filled { background:var(--visor); transform:translateY(-1px); }
-    .glyph-cell.filled .glyph-inner { box-shadow:inset 0 0 14px #45e6de2e; }
-    .glyph-sym { width:74%; height:74%; object-fit:contain; display:none;
-      filter:drop-shadow(0 0 4px #45e6deaa); }
-    .glyph-cell.filled .glyph-sym { display:block; }
-    .glyph-hex { display:none; font-family:var(--f-mono); font-size:.95rem; color:var(--visor); }
-    .glyph-cell.filled.noimg .glyph-sym { display:none; }
-    .glyph-cell.filled.noimg .glyph-hex { display:block; }
+    footer .dot { color:var(--visor-dim); margin:0 .5em; }
 
-    /* ---- Glyph dial pad (click to enter glyphs) ---- */
-    .dial { display:flex; flex-direction:column; gap:.7rem; }
-    .dial-label {
-      font-family:var(--f-display); text-transform:uppercase; letter-spacing:.18em;
-      font-size:.66rem; color:var(--visor); display:flex; align-items:center; gap:.5em;
-    }
-    .dial-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:6px; }
-    .dial-key {
-      aspect-ratio:1; background:var(--input); border:1px solid var(--line); border-radius:4px;
-      cursor:pointer; position:relative; display:flex; align-items:center; justify-content:center;
-      transition:border-color .15s, box-shadow .15s, background .15s, transform .1s;
-    }
-    .dial-key:hover { border-color:var(--visor); background:#0c1d33; box-shadow:0 0 12px #45e6de44; }
-    .dial-key:active { transform:translateY(1px); }
-    .dial-key img { width:68%; height:68%; object-fit:contain; filter:drop-shadow(0 0 3px #45e6de88); }
-    .dial-key .kh { display:none; font-family:var(--f-mono); font-size:1.05rem; color:var(--visor); }
-    .dial-key.noimg img { display:none; }
-    .dial-key.noimg .kh { display:block; }
-    .dial-actions { display:flex; gap:6px; }
-    .dial-btn {
-      flex:1; background:transparent; border:1px solid var(--line); color:var(--hint);
-      font-family:var(--f-display); text-transform:uppercase; letter-spacing:.1em; font-size:.6rem;
-      padding:8px 6px; border-radius:4px; cursor:pointer; transition:border-color .15s, color .15s;
-    }
-    .dial-btn:hover { border-color:var(--visor-dim); color:var(--text); }
-
-    .coord-readout {
-      display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
-      background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;
-    }
-    .coord-cell { background:var(--void2); padding:.7rem .4rem; text-align:center; }
-    .coord-cell .k { font-family:var(--f-display); font-size:.58rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; }
-    .coord-cell .v { font-family:var(--f-mono); font-size:1.15rem; color:var(--text); margin-top:.25rem; letter-spacing:.04em; }
-    .coord-readout.resolved .coord-cell .v { color:var(--visor); text-shadow:0 0 14px #45e6de55; }
-    .resolver-status {
-      margin-top:.85rem; font-size:.74rem; letter-spacing:.05em; color:var(--hint);
-      display:flex; align-items:center; gap:.5em;
-    }
-    .resolver-status::before { content:'◆'; font-size:.6rem; color:var(--visor-dim); }
-    .resolver-status.ok { color:var(--visor); }
-    .resolver-status.ok::before { color:var(--visor); }
-    .resolver-status.err { color:var(--hazard); }
-    .resolver-status.err::before { content:'⚠'; color:var(--hazard); }
-
-    /* ---- Panels ---- */
-    .panel {
-      background:var(--panel); border:1px solid var(--line-soft);
-      border-radius:6px; padding:1.3rem 1.5rem; margin-bottom:1.15rem; position:relative;
-    }
-    .panel::before {
-      content:''; position:absolute; top:-1px; left:-1px; width:14px; height:14px;
-      border-top:1.5px solid var(--blue); border-left:1.5px solid var(--blue); pointer-events:none;
-    }
-    .panel h2 {
-      font-family:var(--f-display); font-size:.74rem; font-weight:600; letter-spacing:.22em;
-      text-transform:uppercase; color:var(--visor); margin-bottom:1.1rem;
-      display:flex; align-items:center; gap:.6em;
-    }
-    .panel h2::before { content:'⬡'; color:var(--blue); font-size:.85rem; }
-
-    .field-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(205px,1fr)); gap:13px; }
-    .field { display:flex; flex-direction:column; gap:5px; }
-    .field label {
-      font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
-      text-transform:uppercase; color:var(--dim); display:inline-flex; align-items:center; flex-wrap:wrap;
-    }
-    /* qualifier in a label, e.g. "(no prefix)" — mono so the parentheses render curved */
-    .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--note); }
-    .field input, .field select {
-      background:var(--input); border:1px solid var(--line); border-radius:4px; color:var(--text);
-      font-family:var(--f-mono); font-size:.86rem; padding:8px 10px; width:100%;
-      transition:border-color .2s, box-shadow .2s;
-    }
-    .field input:focus, .field select:focus {
-      outline:none; border-color:var(--blue); box-shadow:0 0 0 1px var(--blue), 0 0 14px #2d7bff2e;
-    }
-    .field select option { background:var(--panel-soft); }
-    .field input::placeholder { color:var(--faint); }
-    .full-width { grid-column:1/-1; }
-    .hint { font-size:.68rem; color:var(--hint); letter-spacing:.03em; line-height:1.4; }
-    .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
-
-    /* star-colour swatches (real star colours = the data's true values) */
-    .swatches { display:flex; flex-wrap:wrap; gap:8px; }
-    .swatch {
-      display:flex; align-items:center; gap:7px; background:var(--input);
-      border:1px solid var(--line); color:var(--dim); font-family:var(--f-display);
-      text-transform:uppercase; letter-spacing:.1em; font-size:.66rem; padding:8px 13px;
-      border-radius:4px; cursor:pointer; transition:all .2s;
-    }
-    .swatch .dot { width:12px; height:12px; border-radius:50%; background:var(--sc); box-shadow:0 0 9px var(--sc); }
-    .swatch:hover { border-color:var(--visor-dim); color:var(--text); }
-    .swatch.active { border-color:var(--blue); color:var(--text); background:#0c1d38; box-shadow:0 0 0 1px var(--blue), 0 0 14px #2d7bff3a; }
-
-    /* dissonant state (purple) + purple-star lock */
-    #dissonant_field.danger select { border-color:var(--dissonant); box-shadow:0 0 0 1px var(--dissonant), 0 0 14px #bf7bff44; color:var(--dissonant); }
-    #dissonant_field.danger label::after {
-      content:'⬡ DISSONANT'; margin-left:.7em; color:var(--dissonant); font-size:.82em; letter-spacing:.1em;
-    }
-    #dissonant_field.locked select { opacity:.6; cursor:not-allowed; }
-    .ds-term { color:var(--dissonant); text-shadow:0 0 8px #bf7bff55; }
-
-    .planet-block {
-      background:var(--panel-soft); border:1px solid var(--line-soft);
-      border-radius:5px; padding:13px; margin-bottom:10px;
-    }
-    .planet-block h4 {
-      font-family:var(--f-display); font-size:.64rem; color:var(--blue);
-      letter-spacing:.16em; text-transform:uppercase; margin-bottom:11px;
-    }
-    .planet-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:9px; }
-
-    /* ---- "How to get this info" helper button (bright white circle, blue ?) ---- */
-    .help-btn {
-      margin-left:.4em; vertical-align:middle; flex:none;
-      border:none; background:transparent; color:#fff; cursor:pointer;
-      font-family:var(--f-mono); font-size:.9rem; font-weight:700; line-height:1; padding:0;
-      transition:color .15s, text-shadow .15s;
-    }
-    .help-btn:hover { color:var(--visor); text-shadow:0 0 8px #45e6deaa; }
-
-    /* ---- Help side panel ---- */
-    .help-panel {
-      position:fixed; top:0; right:0; height:100vh; width:min(390px, 94vw);
-      background:linear-gradient(180deg, #0b1626, #070d18); border-left:1px solid var(--line);
-      z-index:61; transform:translateX(100%); transition:transform .25s ease;
-      display:flex; flex-direction:column; box-shadow:-20px 0 50px #02050a99;
-    }
-    .help-panel.open { transform:none; }
-    .help-panel-head {
-      display:flex; align-items:center; justify-content:space-between; gap:1rem;
-      padding:1.2rem 1.3rem; border-bottom:1px solid var(--line-soft); flex:none;
-    }
-    .help-panel-head h3 {
-      font-family:var(--f-display); font-size:.8rem; letter-spacing:.16em;
-      text-transform:uppercase; color:var(--visor);
-    }
-    .help-close {
-      background:transparent; border:1px solid var(--line); border-radius:4px; color:var(--dim);
-      cursor:pointer; font-family:var(--f-mono); font-size:.85rem; width:28px; height:28px; flex:none;
-      transition:border-color .15s, color .15s;
-    }
-    .help-close:hover { border-color:var(--visor); color:var(--text); }
-    .help-body { padding:1.2rem 1.3rem; overflow-y:auto; }
-    .help-body ol { margin:0 0 .4rem 1.1rem; padding:0; }
-    .help-body li { color:var(--note); font-size:.82rem; line-height:1.6; margin-bottom:.6rem; }
-    .help-img { width:100%; border:1px solid var(--line); border-radius:5px; margin:.7rem 0 0; display:block; background:var(--void2); cursor:zoom-in; transition:border-color .15s; }
-    .help-img:hover { border-color:var(--visor); }
-    .help-zoom { font-size:.68rem; color:var(--faint); margin-top:.85rem; letter-spacing:.03em; }
-    .lightbox {
-      position:fixed; inset:0; z-index:70; background:#02050af2; padding:2rem; cursor:zoom-out;
-      display:none; align-items:center; justify-content:center;
-    }
-    .lightbox.open { display:flex; }
-    .lightbox img { max-width:100%; max-height:100%; border:1px solid var(--line); border-radius:4px; box-shadow:0 0 50px #000; }
-
-    /* ---- Generate + output ---- */
-    .form-error {
-      display:none; align-items:center; gap:.5em; margin-top:1.4rem; padding:11px 14px;
-      border:1px solid var(--hazard); border-radius:5px; background:#ff7a3c14; color:var(--hazard);
-      font-size:.76rem; letter-spacing:.03em;
-    }
-    .form-error::before { content:'⚠'; }
-    .form-error.show { display:flex; }
-
-    .btn-generate {
-      display:block; width:100%; padding:15px; margin-top:1.6rem;
-      background:linear-gradient(135deg, var(--blue), var(--blue-deep));
-      border:none; border-radius:5px; color:#fff; cursor:pointer;
-      font-family:var(--f-display); font-size:.82rem; font-weight:600;
-      letter-spacing:.2em; text-transform:uppercase;
-      transition:box-shadow .2s, transform .1s;
-    }
-    .btn-generate:hover { box-shadow:0 0 26px #2d7bff66; }
-    .btn-generate:active { transform:translateY(1px); }
-
-    .output-section { display:none; margin-top:1.6rem; }
-    .output-section.visible { display:block; }
-    .output-head {
-      display:flex; align-items:center; gap:.6em; margin-bottom:.8rem;
-      font-family:var(--f-display); font-size:.74rem; letter-spacing:.22em;
-      text-transform:uppercase; color:var(--mint);
-    }
-    .output-head::before { content:'⬢'; color:var(--mint); }
-    .output-box {
-      background:#04070d; border:1px solid var(--line); border-radius:6px; padding:1.1rem;
-      font-family:var(--f-mono); font-size:.78rem; line-height:1.62; white-space:pre;
-      overflow:auto; color:var(--mint); max-height:520px;
-    }
-    .output-actions { display:flex; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:.8rem; }
-    .btn-copy {
-      padding:9px 22px; background:transparent; border:1px solid var(--visor);
-      border-radius:4px; color:var(--visor); font-family:var(--f-display); letter-spacing:.14em;
-      text-transform:uppercase; font-size:.72rem; cursor:pointer; transition:background .2s;
-    }
-    .btn-copy:hover { background:#45e6de1a; }
-    .btn-copy.copied { color:var(--mint); border-color:var(--mint); }
-    .wiki-howto {
-      background:transparent; border:none; cursor:pointer; font-family:var(--f-display);
-      font-weight:700; text-transform:uppercase; letter-spacing:.12em; font-size:.74rem;
-      color:var(--visor); text-decoration:underline; text-underline-offset:3px; padding:0;
-    }
-    .wiki-howto:hover { color:var(--text); }
-
-    @media (max-width:760px) { .resolver-body { grid-template-columns:1fr; } }
-    @media (max-width:560px) {
-      .glyph-strip { grid-template-columns:repeat(6,1fr); }
-      .coord-readout { grid-template-columns:repeat(2,1fr); }
-    }
-    @media (prefers-reduced-motion: reduce) {
-      * { transition:none !important; animation:none !important; }
-    }
+    @media (max-width:720px) { .tiles { grid-template-columns:1fr; } }
+    @media (prefers-reduced-motion: reduce) { * { transition:none !important; } }
   </style>
 </head>
 <body>
 <div class="container">
   <header>
-    <div class="eyebrow">Stellar Cartography Terminal</div>
-    <h1><span class="hex">Space Link</span> System Atlas</h1>
+    <div class="eyebrow">Galactic Wiki Toolkit</div>
+    <h1><span class="hex">Space Link</span> Toolkit</h1>
     <div class="scanline"></div>
-    <a class="nav-chip" href="base.html">Space Link Base Creator →</a>
+    <p class="tagline">Tools for documenting the known universe — turn your systems, bases and civilization into wiki pages, ready to paste.</p>
   </header>
 
-  <!-- SIGNATURE: Portal Address Resolver -->
-  <div class="resolver">
-    <div class="resolver-head">
-      <span class="title">⬡ Portal Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
-      <span class="sub">Click glyphs, or type the address</span>
-    </div>
-    <div class="resolver-body">
-      <div class="decoder">
-        <input type="text" id="glyphs" class="glyph-input" maxlength="12" autocomplete="off" spellcheck="false"
-               placeholder="DIAL 12 GLYPHS · e.g. 109BFE16D676">
-        <div class="glyph-strip" id="glyph_strip"></div>
-        <div class="coord-readout" id="coord_readout">
-          <div class="coord-cell"><div class="k">X</div><div class="v" id="cx">––––</div></div>
-          <div class="coord-cell"><div class="k">Y</div><div class="v" id="cy">––––</div></div>
-          <div class="coord-cell"><div class="k">Z</div><div class="v" id="cz">––––</div></div>
-          <div class="coord-cell"><div class="k">System</div><div class="v" id="cs">––––</div></div>
-        </div>
-        <div class="resolver-status" id="resolver_status">Awaiting address — dial or type 12 glyphs to resolve coordinates.</div>
-      </div>
-      <div class="dial">
-        <div class="dial-label">⬡ Glyph Dial</div>
-        <div class="dial-grid" id="dial_grid"></div>
-        <div class="dial-actions">
-          <button type="button" class="dial-btn" id="dial_back">⌫ Back</button>
-          <button type="button" class="dial-btn" id="dial_clear">Clear</button>
-        </div>
-      </div>
-    </div>
+  <div class="sec-label">Generators</div>
+  <div class="tiles">
+    <a class="tile" href="atlas.html">
+      <div class="tile-top"><span class="tile-sym">✦</span><span class="tile-idx">01 / Systems</span></div>
+      <div class="tile-name">System <span class="hex">Atlas</span></div>
+      <div class="tile-desc">Decode a star system's portal glyphs and generate its full wiki page — star data, planets, moons, resources and linked bases.</div>
+      <span class="tile-go">Launch <span>→</span></span>
+    </a>
+    <a class="tile" href="base.html">
+      <div class="tile-top"><span class="tile-sym">⌂</span><span class="tile-idx">02 / Bases</span></div>
+      <div class="tile-name">Base <span class="hex">Creator</span></div>
+      <div class="tile-desc">Build a wiki page for a player base — surface coordinates, portal glyphs and location details, formatted and ready to publish.</div>
+      <span class="tile-go">Launch <span>→</span></span>
+    </a>
+    <a class="tile" href="civ.html">
+      <div class="tile-top"><span class="tile-sym">◈</span><span class="tile-idx">03 / Civ</span></div>
+      <div class="tile-name">Civ <span class="hex">Registry</span></div>
+      <div class="tile-desc">Create your civilization's main page — infobox, lore, naming convention, membership and auto-listed systems &amp; bases.</div>
+      <span class="tile-go">Launch <span>→</span></span>
+    </a>
   </div>
 
-  <div class="panel">
-    <h2>Identification</h2>
-    <p class="note">These name your civ on the wiki. Set them once and they carry through every page.</p>
-    <div class="field-grid">
-      <div class="field"><label>System name prefix</label><input type="text" id="prefix" placeholder="e.g. SLF -"></div>
-      <div class="field"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
-      <div class="field"><label>Galaxy <button class="help-btn" type="button" data-help="galaxy" title="How to get this info">?</button></label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
-      <div class="field"><label>Region <button class="help-btn" type="button" data-help="region" title="How to get this info">?</button></label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
-    </div>
+  <div class="sec-label">Federation</div>
+  <div class="links">
+    <a class="link-chip" href="https://discord.gg/U9ag2Vd438" target="_blank" rel="noopener"><span class="ls">▷</span> Join the Discord</a>
+    <a class="link-chip" href="https://nomanssky.fandom.com/wiki/Space_Link_Federation" target="_blank" rel="noopener"><span class="ls">❖</span> Federation Wiki</a>
   </div>
 
-  <div class="panel">
-    <h2>Stellar Data</h2>
-    <div class="field-grid">
-      <div class="field"><label>System name <span class="q">(no prefix)</span> <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
-      <div class="field"><label>Star class <button class="help-btn" type="button" data-help="star_class" title="How to get this info">?</button></label><input type="text" id="star_class" placeholder="e.g. G4, F0p"></div>
-      <div class="field full-width"><label>Star colour</label>
-        <div class="swatches" id="swatches">
-          <button type="button" class="swatch active" data-color="Yellow"><span class="dot" style="--sc:#ffd75e"></span>Yellow</button>
-          <button type="button" class="swatch" data-color="Red"><span class="dot" style="--sc:#ff5a4d"></span>Red</button>
-          <button type="button" class="swatch" data-color="Green"><span class="dot" style="--sc:#46e08a"></span>Green</button>
-          <button type="button" class="swatch" data-color="Blue"><span class="dot" style="--sc:#4d9bff"></span>Blue</button>
-          <button type="button" class="swatch" data-color="Purple"><span class="dot" style="--sc:#b266ff"></span>Purple</button>
-        </div>
-        <input type="hidden" id="star_color" value="Yellow">
-      </div>
-      <div class="field"><label>Faction <button class="help-btn" type="button" data-help="faction" title="How to get this info">?</button></label>
-        <select id="faction"><option>Gek</option><option>Vy'keen</option><option>Korvax</option><option>Uncharted</option></select>
-      </div>
-      <div class="field"><label>Economy <span class="q">(galaxy map)</span> <button class="help-btn" type="button" data-help="economy" title="How to get this info">?</button></label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
-      <div class="field"><label>Conflict level <button class="help-btn" type="button" data-help="conflict" title="How to get this info">?</button></label><input type="text" id="conflict" placeholder="e.g. Tranquil"></div>
-      <div class="field" id="dissonant_field"><label>Dissonant planets? <button class="help-btn" type="button" data-help="dissonant" title="How to get this info">?</button></label>
-        <select id="dissonant"><option>No</option><option>Yes</option></select>
-        <p class="hint" id="dissonant_hint">Select Yes if any planet in the system has <span class="ds-term">"Dissonance Detected"</span> in its description.</p>
-      </div>
-      <div class="field" id="water_field" style="display:none"><label>Pure water <span class="q">(ocean)</span> worlds? <button class="help-btn" type="button" data-help="water" title="How to get this info">?</button></label>
-        <select id="water"><option>No</option><option>Yes</option></select>
-        <p class="hint">Only purple systems have full ocean worlds. Descriptions vary — if a planet is basically all water, you're fine.</p>
-      </div>
-      <div class="field"><label>Discovery date</label><input type="text" id="disc_date" placeholder="e.g. 3 June 2026"></div>
-      <div class="field"><label>Discoverer name</label><input type="text" id="disc_name" placeholder="In-game username"></div>
-      <div class="field"><label>Number of planets</label>
-        <select id="planet_count">
-          <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-          <option value="4" selected>4</option><option value="5">5</option><option value="6">6</option>
-          <option value="7">7</option><option value="8">8</option>
-        </select>
-      </div>
-      <div class="field"><label>Number of moons</label>
-        <select id="moon_count">
-          <option value="0" selected>0</option><option value="1">1</option>
-          <option value="2">2</option><option value="3">3</option><option value="4">4</option>
-        </select>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h2>Planetary Survey</h2>
-    <p class="note">Set the planet and moon counts above first, then fill in what you have — leave the rest blank.</p>
-    <div id="planet_rows"></div>
-  </div>
-
-  <div class="panel">
-    <h2>Bases</h2>
-    <p class="note">Name each base to match its base-page title — they'll be linked under the Bases section (<span class="q">==Bases==</span>).</p>
-    <div class="field" style="max-width:220px"><label>Number of bases</label>
-      <select id="base_count">
-        <option value="0" selected>0</option>
-        <option value="1">1</option><option value="2">2</option><option value="3">3</option>
-        <option value="4">4</option><option value="5">5</option><option value="6">6</option>
-      </select>
-    </div>
-    <div id="base_rows" style="margin-top:11px"></div>
-  </div>
-
-  <div class="form-error" id="form_error"></div>
-  <button class="btn-generate" onclick="buildOutput()">Generate wiki code</button>
-
-  <div class="output-section" id="output_section">
-    <div class="output-head">Galactic record entry</div>
-    <div class="output-box" id="output_box"></div>
-    <div class="output-actions">
-      <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
-      <button class="wiki-howto" type="button" data-help="wiki">How To Get This Onto The Wiki →</button>
-    </div>
-  </div>
+  <footer>
+    Space Link Federation <span class="dot">·</span> Capeki Spur, Eissentam <span class="dot">·</span> documenting the universe before the Atlas collapse
+  </footer>
 </div>
-
-<!-- Help side panel -->
-<div class="help-panel" id="help_panel" aria-hidden="true">
-  <div class="help-panel-head">
-    <h3 id="help_title">Help</h3>
-    <button class="help-close" id="help_close" type="button" aria-label="Close">✕</button>
-  </div>
-  <div class="help-body" id="help_body"></div>
-</div>
-<div class="lightbox" id="lightbox"><img id="lightbox_img" alt=""></div>
-
-<script>
-const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@master/img/glyphs/';
-
-function g(id) { return (document.getElementById(id)?.value || '').trim(); }
-
-/* ---- Help content (text steps now; drop matching screenshots into a /help folder) ---- */
-const HELP_IMG_BASE = 'help/';
-const HELP = {
-  galaxy: { title:'Galaxy', steps:[
-    "Open the Galaxy Map from the menu.",
-    "The galaxy's name is shown in the top-left corner."] },
-  region: { title:'Region', steps:[
-    "On the Galaxy Map, expand a system's info box to read its region.",
-    "Systems on the map are grouped by region."] },
-  system_name: { title:'System name', steps:[
-    "Found in your Discoveries and in the Galaxy Map menu.",
-    "It also appears on-screen when you warp into the system."] },
-  star_class: { title:'Star class', steps:[
-    "Open the Galaxy Map and select your system.",
-    "The star's class (e.g. G4, F0p) is shown in the system info panel.",
-    "Type it here and the star colour auto-selects."], imgs:['star-class.png'] },
-  faction: { title:'Faction (dominant race)', steps:[
-    "On the Galaxy Map, select the system — the dominant lifeform (Gek, Vy'keen or Korvax) is listed.",
-    "It's also whoever runs the space station. Abandoned/Uncharted systems have none."], imgs:['faction.png'] },
-  economy: { title:'Economy', steps:[
-    "On the Galaxy Map, the system info panel shows the economy type and its wealth (e.g. Mining // Advanced).",
-    "An Economy Scanner ship upgrade shows it for every system on the map."], imgs:['economy.png'] },
-  conflict: { title:'Conflict level', steps:[
-    "The Galaxy Map system info panel lists the conflict level (e.g. Tranquil, Dangerous).",
-    "A Conflict Scanner ship upgrade shows it on the map."], imgs:['conflict.png'] },
-  dissonant: { title:'Dissonant planets', steps:[
-    "On the Galaxy Map, a dissonant system shows the word 'Dissonant' right next to the star class (an Economy Scanner upgrade reveals it).",
-    "Inside the system, scan each planet — a corrupted-Sentinel world shows 'Dissonance Detected' in its on-screen description.",
-    "If any planet shows that (or the system is flagged Dissonant), choose Yes.",
-    "Purple-star systems are always dissonant."] },
-  water: { title:'Pure water worlds', steps:[
-    "Only purple-star systems can have full ocean worlds.",
-    "Planet descriptions vary, so don't go by the label — if a planet is basically all ocean, it's a water world. Choose Yes if the system has one."] },
-  glyphs: { title:'Portal glyphs', steps:[
-    "Unlock Portal Glyphs through the story first.",
-    "Then interact with any portal to read off its 12-glyph address.",
-    "Click the glyphs on the dial here, or type the code in."] },
-  planet_name: { title:'Planet name', steps:[
-    "A planet's name shows when you scan it, or select it in the Discoveries tab in the main menu."] },
-  planet_type: { title:'Planet type', steps:[
-    "Scan the planet from space, or use your Analysis Visor, to see its type / biome (e.g. Lush, Toxic, Frozen)."] },
-  planet_weather: { title:'Extreme weather', steps:[
-    "The planet's info (Analysis Visor or discovery page) lists its weather.",
-    "Hazardous, storm-heavy worlds (scorching, frozen, toxic, radioactive) = Yes; calm/clear = No.",
-    "Fun fact: extreme worlds often carry activated minerals, like Activated Copper."] },
-  planet_sentinels: { title:'Aggressive sentinels', steps:[
-    "A planet's Sentinel level shows when you scan it (and in your Discoveries).",
-    "Choose Yes only if it reads 'Aggressive Sentinels' — those attack on sight. 'Low' or 'High' activity = No."] },
-  planet_resources: { title:'Resources', steps:[
-    "Scan the planet with your Analysis Visor — its main resources are listed.",
-    "Enter them separated by commas (e.g. Copper, Paraffinium, Sodium)."], imgs:['planet-resources.png'] },
-  wiki: { title:'How to get this onto the wiki', steps:[
-    "Copy the code above with the Copy button.",
-    "On the wiki, click Add Page / Create New Page and type the exact page title.",
-    "In the editor, switch to the SOURCE editor — open the pencil / ▾ menu (top-right) and choose 'Source editor'. Pasting only works here; the Visual editor won't read the code.",
-    "Clear the box, paste the code, then click Publish / Save. Done."],
-    imgs:['wiki-1.png','wiki-2.png','wiki-3.png','wiki-4.png'] }
-};
-function openHelp(key) {
-  const h = HELP[key];
-  if (!h) return;
-  document.getElementById('help_title').textContent = h.title;
-  let html = '<ol>' + h.steps.map(s => `<li>${s}</li>`).join('') + '</ol>';
-  // Auto-load as many screenshots as exist: <key>-1.png, <key>-2.png, ... (up to 6).
-  // Missing ones remove themselves, so add 1, 2 or more per field — no code changes.
-  for (let i = 1; i <= 6; i++) {
-    html += `<img class="help-img" src="${HELP_IMG_BASE}${key}-${i}.jpg" alt="" onerror="this.src.endsWith('.jpg') ? this.src=this.src.slice(0,-4)+'.png' : this.remove()">`;
-  }
-  html += '<p class="help-zoom">Click an image to view it full-size.</p>';
-  document.getElementById('help_body').innerHTML = html;
-  document.getElementById('help_panel').classList.add('open');
-}
-function closeHelp() { document.getElementById('help_panel').classList.remove('open'); }
-document.addEventListener('click', e => {
-  const b = e.target.closest('[data-help]');
-  if (b) { e.preventDefault(); openHelp(b.dataset.help); }
-});
-document.getElementById('help_close').addEventListener('click', closeHelp);
-
-/* Click a help screenshot to view it full-size (screenshots are kept full on
-   purpose, so this lets the reader actually read them). */
-const _lb = document.getElementById('lightbox');
-const _lbImg = document.getElementById('lightbox_img');
-document.getElementById('help_body').addEventListener('click', e => {
-  const img = e.target.closest('.help-img');
-  if (img) { _lbImg.src = img.src; _lb.classList.add('open'); }
-});
-_lb.addEventListener('click', () => _lb.classList.remove('open'));
-document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { _lb.classList.remove('open'); closeHelp(); }
-});
-
-/* ---- Name filter: keep wiki pages clear of slurs / profanity ----
-   Substring list catches plurals/compounds; exact list is for short words
-   that would false-positive as substrings (e.g. "ass" in "assassin"). */
-const BLOCK_SUB = ['fuck','shit','cunt','bitch','pussy','asshole','dickhead','motherfuck','bullshit',
-  'whore','bollock','douche','nigger','nigga','faggot','retard','chink','gook','wetback','beaner',
-  'sandnigger','raghead','towelhead','kike','spic','tranny','paki','zipperhead'];
-const BLOCK_EXACT = ['fag','jap','coon','gyp','wog','dago','mick','kraut','homo','negro','redskin',
-  'dyke','dick','cock','cum','tit','tits','ass','piss','prick','twat','slut'];
-function deLeet(s) {
-  return s.toLowerCase()
-    .replace(/[@4]/g,'a').replace(/3/g,'e').replace(/[1!|]/g,'i')
-    .replace(/0/g,'o').replace(/[5$]/g,'s').replace(/7/g,'t')
-    .replace(/[^a-z]/g,'');
-}
-function isBadText(text) {
-  if (!text) return false;
-  for (const raw of text.toLowerCase().split(/[^a-z0-9@$!|]+/)) {
-    const w = deLeet(raw);
-    if (!w) continue;
-    if (BLOCK_EXACT.includes(w)) return true;
-    for (const b of BLOCK_SUB) { if (w.includes(b)) return true; }
-  }
-  return false;
-}
-// Coded fields are NOT names — skip them so e.g. star class "F4G" / "A55" aren't
-// misread as slurs by the de-leet step, and the hex glyph address isn't scanned.
-const FILTER_SKIP = new Set(['glyphs', 'b_glyphs', 'star_class', 'b_axes']);
-function firstBadField() {
-  for (const el of document.querySelectorAll('input[type="text"]')) {
-    if (FILTER_SKIP.has(el.id)) continue;
-    if (isBadText(el.value)) return el;
-  }
-  return null;
-}
-
-/* ---- Planets & moons rows ---- */
-function buildRows() {
-  const pCount = parseInt(document.getElementById('planet_count').value);
-  const mCount = parseInt(document.getElementById('moon_count').value);
-  const total = pCount + mCount;
-  let html = '';
-  for (let i = 0; i < total; i++) {
-    const isMoon = i >= pCount;
-    const label = isMoon ? `Moon ${i - pCount + 1}` : `Planet ${i + 1}`;
-    const namePh = isMoon ? 'Moon name' : 'Planet name';
-    const typePh = isMoon ? 'e.g. Barren Moon' : 'e.g. Paradise Planet';
-    let orbitsField = '';
-    if (isMoon) {
-      let opts = '';
-      for (let p = 0; p < pCount; p++) opts += `<option value="${p}">Planet ${p + 1}</option>`;
-      orbitsField = `<div class="field"><label>Orbits which planet?</label><select id="p${i}_orbits">${opts}</select></div>`;
-    }
-    // show field helpers on the first planet only (they're identical for every planet)
-    const hb = key => i === 0 ? ` <button class="help-btn" type="button" data-help="${key}" title="How to get this info">?</button>` : '';
-    html += `<div class="planet-block">
-      <h4>${label}</h4>
-      <div class="planet-grid">
-        <div class="field"><label>Name${hb('planet_name')}</label><input type="text" id="p${i}_name" placeholder="${namePh}"></div>
-        <div class="field"><label>Type${hb('planet_type')}</label><input type="text" id="p${i}_type" placeholder="${typePh}"></div>
-        <div class="field"><label>Extreme weather?${hb('planet_weather')}</label><select id="p${i}_weather"><option>No</option><option>Yes</option></select></div>
-        <div class="field"><label>Aggressive sentinels?${hb('planet_sentinels')}</label><select id="p${i}_sent"><option>No</option><option>Yes</option></select></div>
-        ${orbitsField}
-        <div class="field full-width"><label>Resources <span class="q">(comma separated)</span>${hb('planet_resources')}</label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
-        <div class="field full-width"><label>Notes <span class="q">(optional)</span></label><input type="text" id="p${i}_notes" placeholder="Any extra notes"></div>
-      </div>
-    </div>`;
-  }
-  document.getElementById('planet_rows').innerHTML = html;
-  updateOrbitsOptions();
-}
-document.getElementById('planet_count').addEventListener('change', buildRows);
-document.getElementById('moon_count').addEventListener('change', buildRows);
-
-/* Show each planet's real name in the moon "orbits which planet?" dropdowns,
-   falling back to "Planet N" until a name is typed. */
-function updateOrbitsOptions() {
-  const pCount = parseInt(document.getElementById('planet_count').value);
-  const mCount = parseInt(document.getElementById('moon_count').value);
-  for (let m = pCount; m < pCount + mCount; m++) {
-    const sel = document.getElementById(`p${m}_orbits`);
-    if (!sel) continue;
-    for (let p = 0; p < pCount; p++) {
-      const opt = sel.options[p];
-      if (!opt) continue;
-      const nm = (document.getElementById(`p${p}_name`)?.value || '').trim();
-      opt.textContent = nm ? `Planet ${p + 1} — ${nm}` : `Planet ${p + 1}`;
-    }
-  }
-}
-document.getElementById('planet_rows').addEventListener('input', e => {
-  if (e.target.id && e.target.id.endsWith('_name')) updateOrbitsOptions();
-});
-buildRows();
-
-function buildBaseRows() {
-  const n = parseInt(document.getElementById('base_count').value);
-  let html = '';
-  for (let i = 0; i < n; i++) {
-    html += `<div class="field" style="margin-bottom:8px"><label>Base ${i + 1} name</label><input type="text" id="base${i}_name" placeholder="e.g. SLF Desert Base"></div>`;
-  }
-  document.getElementById('base_rows').innerHTML = html;
-}
-document.getElementById('base_count').addEventListener('change', buildBaseRows);
-buildBaseRows();
-
-/* ---- glyphs -> coordinates (verified against SLF - Ganggya-Opiu) ---- */
-const RE12 = /^[0-9A-F]{12}$/;
-const hx = (n, w) => ((n & ((1 << (4 * w)) - 1)) >>> 0).toString(16).toUpperCase().padStart(w, '0');
-function glyphsToCoords(glyphs) {
-  const s = glyphs.trim().toUpperCase();
-  if (!RE12.test(s)) throw new Error('Glyphs must be exactly 12 hex digits, e.g. 109BFE16D676');
-  const sss = s.slice(1,4), yy = s.slice(4,6), zzz = s.slice(6,9), xxx = s.slice(9,12);
-  const Xg = (parseInt(xxx,16) + 0x7FF) & 0xFFF;
-  const Yg = (parseInt(yy,16) - 0x81) & 0xFF;
-  const Zg = (parseInt(zzz,16) + 0x7FF) & 0xFFF;
-  const SSSS = parseInt('0' + sss, 16);
-  return hx(Xg,4) + ':' + hx(Yg,4) + ':' + hx(Zg,4) + ':' + hx(SSSS,4);
-}
-
-/* Sanity-check a 12-glyph address. Planet index must be 0–6; system index
-   1–0x2FF (regions hold ~767 systems max). X/Y/Z can't be out of range in a
-   12-glyph address (fixed digit widths), so they aren't checked. */
-function addressIssue(s) {
-  const planet = parseInt(s[0], 16);
-  const sys = parseInt(s.slice(1, 4), 16);
-  if (planet > 6) return { hard: true, msg: `Planet index "${s[0]}" can't exist — a system has at most 6 planets (the 1st glyph should be 0–6).` };
-  if (sys === 0) return { hard: false, msg: "System index 000 isn't a real system — re-check glyphs 2–4." };
-  if (sys > 0x2FF) return { hard: false, msg: `System index ${s.slice(1, 4)} looks impossible — regions top out near 2FF (~767 systems). Double-check the address.` };
-  return null;
-}
-
-/* ---- Portal Address Resolver (signature) ---- */
-function buildGlyphStrip() {
-  let html = '';
-  for (let i = 0; i < 12; i++) {
-    html += `<div class="glyph-cell"><div class="glyph-inner">
-      <img class="glyph-sym" alt=""><span class="glyph-hex"></span>
-    </div></div>`;
-  }
-  document.getElementById('glyph_strip').innerHTML = html;
-}
-buildGlyphStrip();
-
-function updateResolver() {
-  const input = document.getElementById('glyphs');
-  let s = input.value.toUpperCase().replace(/[^0-9A-F]/g, '').slice(0, 12);
-  if (s !== input.value) input.value = s;
-
-  const cells = document.querySelectorAll('#glyph_strip .glyph-cell');
-  cells.forEach((cell, i) => {
-    const ch = s[i];
-    const img = cell.querySelector('.glyph-sym');
-    const hexEl = cell.querySelector('.glyph-hex');
-    if (ch) {
-      cell.classList.add('filled'); cell.classList.remove('noimg');
-      hexEl.textContent = ch;
-      img.onerror = () => cell.classList.add('noimg');   // fall back to the hex numeral
-      img.src = GLYPH_BASE + ch.toLowerCase() + '.png';
-    } else {
-      cell.classList.remove('filled', 'noimg');
-      hexEl.textContent = ''; img.removeAttribute('src');
-    }
-  });
-
-  const readout = document.getElementById('coord_readout');
-  const status = document.getElementById('resolver_status');
-  const setCoords = (x, y, z, sys) => {
-    document.getElementById('cx').textContent = x;
-    document.getElementById('cy').textContent = y;
-    document.getElementById('cz').textContent = z;
-    document.getElementById('cs').textContent = sys;
-  };
-
-  if (s.length === 12) {
-    const [x, y, z, sys] = glyphsToCoords(s).split(':');
-    setCoords(x, y, z, sys);
-    readout.classList.add('resolved');
-    const issue = addressIssue(s);
-    if (issue) {
-      status.className = 'resolver-status err';
-      status.textContent = issue.msg;
-    } else {
-      status.className = 'resolver-status ok';
-      status.textContent = 'Address resolved — galactic coordinates locked.';
-    }
-  } else {
-    setCoords('––––', '––––', '––––', '––––');
-    readout.classList.remove('resolved');
-    status.className = 'resolver-status';
-    status.textContent = s.length === 0
-      ? 'Awaiting address — dial or type 12 glyphs to resolve coordinates.'
-      : `Address incomplete — ${s.length} of 12 glyphs entered.`;
-  }
-}
-document.getElementById('glyphs').addEventListener('input', updateResolver);
-updateResolver();
-
-/* ---- Glyph dial pad (click to enter glyphs) ---- */
-function buildGlyphPad() {
-  const HEX = '0123456789ABCDEF';
-  let html = '';
-  for (const ch of HEX) {
-    html += `<button type="button" class="dial-key" data-hex="${ch}" title="Glyph ${ch}">
-      <img src="${GLYPH_BASE}${ch.toLowerCase()}.png" alt="${ch}" onerror="this.closest('.dial-key').classList.add('noimg')">
-      <span class="kh">${ch}</span></button>`;
-  }
-  document.getElementById('dial_grid').innerHTML = html;
-  document.querySelectorAll('.dial-key').forEach(k => k.addEventListener('click', () => {
-    const inp = document.getElementById('glyphs');
-    if (inp.value.length >= 12) return;
-    inp.value = inp.value + k.dataset.hex;
-    updateResolver();
-  }));
-}
-buildGlyphPad();
-document.getElementById('dial_back').addEventListener('click', () => {
-  const inp = document.getElementById('glyphs'); inp.value = inp.value.slice(0, -1); updateResolver();
-});
-document.getElementById('dial_clear').addEventListener('click', () => {
-  document.getElementById('glyphs').value = ''; updateResolver();
-});
-
-/* ---- star colour swatches ---- */
-function setStarColor(color) {
-  document.getElementById('star_color').value = color;
-  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.dataset.color === color));
-  updatePurpleUI();
-}
-document.querySelectorAll('.swatch').forEach(s => s.addEventListener('click', () => setStarColor(s.dataset.color)));
-
-/* ---- auto-fill star colour from class ---- */
-const CLASS_COLOUR = {F:'Yellow',G:'Yellow',K:'Red',M:'Red',E:'Green',B:'Blue',O:'Blue',X:'Purple',Y:'Purple'};
-document.getElementById('star_class').addEventListener('input', function (e) {
-  const v = e.target.value.trim();
-  const col = CLASS_COLOUR[(v[0] || '').toUpperCase()];
-  if (col) setStarColor(col);
-  else if (!v) setStarColor('Yellow'); // class cleared -> back to default
-});
-
-/* ---- Purple = pure water worlds possible; also force-locks dissonant to Yes.
-       Dissonant is otherwise a free toggle, since dissonant planets can also
-       appear in normal systems. ---- */
-function updateDissonantUI() {
-  const f = document.getElementById('dissonant_field');
-  f.classList.toggle('danger', document.getElementById('dissonant').value === 'Yes');
-}
-document.getElementById('dissonant').addEventListener('change', updateDissonantUI);
-
-function updatePurpleUI() {
-  const isPurple = document.getElementById('star_color').value === 'Purple';
-  document.getElementById('water_field').style.display = isPurple ? '' : 'none';
-
-  const dis = document.getElementById('dissonant');
-  const field = document.getElementById('dissonant_field');
-  const hint = document.getElementById('dissonant_hint');
-  if (isPurple) {
-    dis.value = 'Yes'; dis.disabled = true;
-    field.classList.add('locked');
-    hint.textContent = 'Locked — purple-class systems are always dissonant.';
-  } else {
-    if (dis.disabled) dis.value = 'No';   // clear the purple-forced value on the way out
-    dis.disabled = false;
-    field.classList.remove('locked');
-    hint.innerHTML = 'Select Yes if any planet in the system has <span class="ds-term">"Dissonance Detected"</span> in its description.';
-  }
-  updateDissonantUI();
-}
-updatePurpleUI();
-
-/* ---- Build the wiki page (admin-approved format — do not reorder fields) ---- */
-function buildOutput() {
-  // Keep slurs / profanity off the wiki before anything else.
-  const fe = document.getElementById('form_error');
-  const badEl = firstBadField();
-  if (badEl) {
-    fe.textContent = 'That name contains language that isn’t allowed on the wiki — please edit it before generating.';
-    fe.classList.add('show');
-    badEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    badEl.focus();
-    return;
-  }
-  fe.classList.remove('show');
-
-  const prefix = g('prefix');
-  const civ = g('civ_name');
-  const galaxy = g('galaxy');
-  const region = g('region');
-  const origName = g('orig_name');
-  const slfName = [prefix, origName || 'System Name'].filter(Boolean).join(' ');
-
-  // Portal glyphs only — the galactic coordinates are decoded from them automatically.
-  let glyphs = g('glyphs').toUpperCase();
-  const status = document.getElementById('resolver_status');
-  if (glyphs.length !== 12) {
-    status.className = 'resolver-status err';
-    status.textContent = 'Cannot generate — dial all 12 glyphs first (0–9, A–F).';
-    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-    document.getElementById('glyphs').focus();
-    return;
-  }
-  let coords;
-  try {
-    coords = glyphsToCoords(glyphs);
-  } catch (err) {
-    status.className = 'resolver-status err';
-    status.textContent = 'Portal glyph problem: ' + err.message;
-    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-    return;
-  }
-  const addrIssue = addressIssue(glyphs);
-  if (addrIssue && addrIssue.hard) {
-    status.className = 'resolver-status err';
-    status.textContent = 'Cannot generate — ' + addrIssue.msg;
-    document.querySelector('.resolver').scrollIntoView({ behavior: 'smooth' });
-    document.getElementById('glyphs').focus();
-    return;
-  }
-
-  // Purple-star systems are dissonant; dissonant planets can also appear in normal systems.
-  const isPurple = g('star_color') === 'Purple';
-  const dissonant = (isPurple || g('dissonant') === 'Yes') ? 'Yes' : '';
-  const water = isPurple ? g('water') : 'No';
-
-  const summary = "'''" + slfName + "''' is a [[star system]]" + (region ? " in the [[" + region + "]]" : "") + ".";
-
-  const pCount = parseInt(g('planet_count') || 4);
-  const mCount = parseInt(g('moon_count') || 0);
-  const total = pCount + mCount;
-  const discName = g('disc_name');
-  const discDate = g('disc_date') || 'dd month yyyy';
-
-  function bodyRow(i) {
-    const isMoon = i >= pCount;
-    const name = g(`p${i}_name`) || (isMoon ? `Moon ${i - pCount + 1}` : `Planet ${i + 1}`);
-    const type = g(`p${i}_type`) || '';
-    const weather = (document.getElementById(`p${i}_weather`)?.value || 'No').toUpperCase();
-    const sent = (document.getElementById(`p${i}_sent`)?.value || 'No').toUpperCase();
-    const res = g(`p${i}_res`) || '';
-    const notes = g(`p${i}_notes`) || '';
-
-    // Auto-link resources
-    const linkedRes = res.split(',').map(r => {
-      const t = r.trim();
-      return t ? `[[${t}]]` : '';
-    }).filter(Boolean).join(', ');
-
-    return `|-
-| [[File:nmsMisc_NotAvailable.png|150px]]
-| [[${name}]]
-| ${type}
-| ${weather}
-| ${sent}
-|-
-|colspan=2 | '''Resources''': ${linkedRes}
-|colspan=3 | '''Notes''': ${notes}
-`;
-  }
-
-  // Planets first, each immediately followed by the moons that orbit it
-  let planetRows = '';
-  for (let p = 0; p < pCount; p++) {
-    planetRows += bodyRow(p);
-    for (let m = pCount; m < total; m++) {
-      if (parseInt(document.getElementById(`p${m}_orbits`)?.value || '0', 10) === p) planetRows += bodyRow(m);
-    }
-  }
-  // Safety net: any moon whose parent planet no longer exists gets listed at the end
-  for (let m = pCount; m < total; m++) {
-    const parent = parseInt(document.getElementById(`p${m}_orbits`)?.value || '0', 10);
-    if (!(parent >= 0 && parent < pCount)) planetRows += bodyRow(m);
-  }
-
-  // Bases -> [[Base Name]] list
-  const baseCount = parseInt(g('base_count') || 0);
-  let basesBlock = '';
-  for (let i = 0; i < baseCount; i++) {
-    const bn = g(`base${i}_name`);
-    if (bn) basesBlock += `[[${bn}]]\n`;
-  }
-  basesBlock = basesBlock.trimEnd();
-
-  const coordParts = coords.replace(/:/g, '|');
-
-  const output = `{{Version|Swarm}}
-<small>''Page created using the Space Link System Atlas''</small>
-{{System infobox
-| name = ${slfName}
-| image = nmsMisc_NotAvailable.png
-| galaxy = ${galaxy}
-| region = ${region}
-| multiplestars =
-| color = ${g('star_color')}
-| class = ${g('star_class')}
-| distance =
-| coordinates = ${coords}
-| planet = ${pCount}
-| moon = ${mCount}
-| water = ${water}
-| dissonant = ${dissonant}
-| gateway = Yes
-| faction = ${g('faction')}
-| economy = ${g('economy')}
-| economysell =
-| economybuy =
-| wealth =
-| conflict = ${g('conflict')}
-| mode = Normal
-| civilized = ${civ}
-| discoveredlink = ${discName}
-| release = Swarm
-| platform = PS5, PC
-}}
-'''${slfName}''' is a star system.
-
-==Summary==
-${summary}
-
-==Alias Names==
-{{aliasc|text=Original|name=${origName}}}
-{{aliasc|text=Current|name=${slfName}}}
-
-==Discovery==
-Discovered by PC/PS explorer ''${discName}'' on ${discDate}.
-
-==Planets & Moons==
-{| class="article-table" style="width:100%; max-width: 1000px;"
-|-
-! width=150 | Planet Image
-! Planet Name
-! width=200 | Type
-! width=150 | Extreme<br/>Weather
-! width=150 | Aggressive<br/>Sentinels
-${planetRows}|}
-
-==Location Information==
-===Coordinates===
-{{coords|${coordParts}}}
-
-===Glyphs===
-{{Gl|${glyphs}}}
-
-===Navigation Images===
-
-===System Location===
-
-==Bases==
-${basesBlock}
-
-==Additional Information==
-${civ ? `Claimed by the [[${civ}]] as part of their mission to document the known universe before the Atlas collapse.` : ''}
-
-==Gallery==
-<gallery>
-nmsMisc_NotAvailable.png|Caption of the image
-</gallery>`;
-
-  document.getElementById('output_box').textContent = output;
-  const sec = document.getElementById('output_section');
-  sec.classList.add('visible');
-  sec.scrollIntoView({ behavior: 'smooth' });
-}
-
-function copyOutput() {
-  const text = document.getElementById('output_box').textContent;
-  navigator.clipboard.writeText(text).then(() => {
-    const btn = document.getElementById('copy_btn');
-    btn.textContent = '✓ Copied';
-    btn.classList.add('copied');
-    setTimeout(() => { btn.textContent = 'Copy code'; btn.classList.remove('copied'); }, 2000);
-  });
-}
-</script>
 </body>
 </html>
