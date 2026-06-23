@@ -213,6 +213,22 @@
     .hint { font-size:.68rem; color:var(--hint); letter-spacing:.03em; line-height:1.4; }
     .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
 
+    /* "metal plate" — a non-editable info panel (banner / image are added on the wiki, not here) */
+    .plate {
+      position:relative; display:flex; align-items:flex-start; gap:.5em;
+      border:1px solid #36506f; border-radius:5px; padding:7px 10px; cursor:default;
+      color:var(--note); font-size:.68rem; line-height:1.38;
+      background:
+        radial-gradient(circle at 6px 6px, #00000099 1.2px, transparent 2px),
+        radial-gradient(circle at calc(100% - 6px) 6px, #00000099 1.2px, transparent 2px),
+        radial-gradient(circle at 6px calc(100% - 6px), #00000099 1.2px, transparent 2px),
+        radial-gradient(circle at calc(100% - 6px) calc(100% - 6px), #00000099 1.2px, transparent 2px),
+        linear-gradient(160deg, #233040, #101b28 60%, #1a2636);
+      box-shadow: inset 0 1px 0 #ffffff12, inset 0 -2px 7px #00000055, 0 1px 2px #00000044;
+    }
+    .plate .pl-icon { color:var(--visor); font-size:.85rem; line-height:1.35; flex:none; filter:drop-shadow(0 0 4px #45e6de66); }
+    .plate strong { color:var(--text); font-weight:600; letter-spacing:.02em; }
+
     /* ---- "How to get this info" helper button (plain white ?) ---- */
     .help-btn {
       margin-left:.4em; vertical-align:middle; flex:none;
@@ -322,9 +338,9 @@
     <h1><span class="hex">Space Link</span> Civ Registry</h1>
     <div class="scanline"></div>
     <div class="nav-row">
-      <a class="nav-chip" href="index.html">⌂ Hub</a>
-      <a class="nav-chip" href="atlas.html">Space Link System Atlas →</a>
-      <a class="nav-chip" href="base.html">Space Link Base Creator →</a>
+      <a class="nav-chip" href="atlas.html">Space Link System Atlas</a>
+      <a class="nav-chip" href="index.html">⌂ Main Page</a>
+      <a class="nav-chip" href="base.html">Space Link Base Creator</a>
     </div>
   </header>
 
@@ -360,14 +376,16 @@
 
   <div class="panel">
     <h2>Civilization Identity</h2>
-    <p class="note">These fill the <span class="q">{{Civilized Space infobox}}</span> and name your civ across the page.</p>
+    <p class="note">These fill your civ's infobox (<span class="q">{{Civilized Space infobox}}</span>).</p>
     <div class="field-grid">
       <div class="field full-width"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
-      <div class="field"><label>Short name <span class="q">(optional — used in prose)</span></label><input type="text" id="short_name" placeholder="e.g. Federation"></div>
-      <div class="field"><label>Banner template <span class="q">(optional)</span></label><input type="text" id="banner" placeholder="e.g. Banner SLF — blank if none"></div>
-      <div class="field"><label>Infobox image <span class="q">(filename)</span></label><input type="text" id="image" placeholder="e.g. nmsMisc_NotAvailable.png"></div>
+      <div class="field"><label>Short name <span class="q">(in sentences)</span></label><input type="text" id="short_name" placeholder="e.g. SLF"></div>
+      <div class="field"><label>Banner template</label>
+        <div class="plate"><span class="pl-icon">⬡</span><span><strong>Add on the wiki yourself.</strong> Paste your banner at the top of the page.</span></div></div>
+      <div class="field"><label>Infobox image</label>
+        <div class="plate"><span class="pl-icon">⬢</span><span><strong>Upload on the wiki yourself.</strong> The page uses a placeholder image.</span></div></div>
       <div class="field"><label>Galaxy <button class="help-btn" type="button" data-help="galaxy" title="How to get this info">?</button></label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
-      <div class="field"><label>Quadrant <span class="q">(optional)</span></label><input type="text" id="quadrant" placeholder="e.g. Beta"></div>
+      <div class="field"><label>Quadrant</label><input type="text" id="quadrant" placeholder="e.g. Beta"></div>
       <div class="field"><label>Region <button class="help-btn" type="button" data-help="region" title="How to get this info">?</button></label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
       <div class="field"><label>Capital system <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="capital_system" placeholder="e.g. SLF - Ganggya-Opiu"></div>
       <div class="field"><label>Capital planet <button class="help-btn" type="button" data-help="planet_name" title="How to get this info">?</button></label><input type="text" id="capital_planet" placeholder="e.g. Oine Tau"></div>
@@ -375,16 +393,12 @@
   </div>
 
   <div class="panel">
-    <h2>Government &amp; Founder</h2>
+    <h2>Government &amp; Leadership</h2>
     <div class="field-grid">
       <div class="field"><label>Government</label><input type="text" id="government" placeholder="e.g. Federation"></div>
-      <div class="field"><label>Civ size</label><input type="text" id="civsize" placeholder="e.g. Solo, Small, Large"></div>
-      <div class="field"><label>Civ type <span class="q">(optional)</span></label><input type="text" id="civtype" placeholder="e.g. Explorers"></div>
-      <div class="field"><label>Founder <span class="q">(optional)</span></label><input type="text" id="founder" placeholder="Display name"></div>
-      <div class="field"><label>Founder in-game name</label><input type="text" id="founderlink" placeholder="e.g. KING-MINION2"></div>
-      <div class="field"><label>Leader <span class="q">(optional)</span></label><input type="text" id="leader" placeholder="If different from founder"></div>
-      <div class="field"><label>Federation <span class="q">(optional)</span></label><input type="text" id="federation" placeholder="Parent federation, if any"></div>
-      <div class="field"><label>UN42 <span class="q">(optional)</span></label><input type="text" id="un42" placeholder="Leave blank if unsure"></div>
+      <div class="field"><label>Civ size <button class="help-btn" type="button" data-help="civsize" title="What do the sizes mean?">?</button></label><input type="text" id="civsize" placeholder="e.g. Solo, Small, Large"></div>
+      <div class="field"><label>Leader</label><input type="text" id="leader" placeholder="Display name"></div>
+      <div class="field"><label>Leader, Online Name</label><input type="text" id="founderlink" placeholder="e.g. KING-MINION2"></div>
       <div class="field"><label>Platform</label><input type="text" id="platform" placeholder="e.g. PS5, PC"></div>
       <div class="field"><label>Release</label><input type="text" id="release" value="Swarm"></div>
     </div>
@@ -408,7 +422,7 @@
       <div class="field"><label>Founded date</label><input type="text" id="founded_date" placeholder="e.g. June 3rd 2026"></div>
       <div class="field"><label>Distance from core <span class="q">(ly)</span></label><input type="text" id="distance" placeholder="e.g. 677,000"></div>
       <div class="field"><label>Galactic position</label><input type="text" id="position" placeholder="e.g. outer rim"></div>
-      <div class="field full-width"><label>History <span class="q">(extra founding details — optional)</span></label>
+      <div class="field full-width"><label>History <span class="q">(extra founding details)</span></label>
         <textarea id="history_body" placeholder="What inspired it, early milestones, who joined first…"></textarea></div>
     </div>
   </div>
@@ -419,8 +433,8 @@
     <div class="field-grid">
       <div class="field"><label>System name prefix</label><input type="text" id="prefix" placeholder="e.g. SLF"></div>
       <div class="field"><label>Members are called…</label><input type="text" id="member_term" placeholder="e.g. Travellers"></div>
-      <div class="field full-width"><label>Discord invite <span class="q">(optional)</span></label><input type="text" id="discord" placeholder="e.g. https://discord.gg/…"></div>
-      <div class="field full-width"><label>Membership details <span class="q">(optional — your civ's own policy)</span></label>
+      <div class="field full-width"><label>Discord invite</label><input type="text" id="discord" placeholder="e.g. https://discord.gg/…"></div>
+      <div class="field full-width"><label>Membership details <span class="q">(your civ's own policy)</span></label>
         <textarea id="membership_body" placeholder="Describe who can join and how — in your civ's own words. e.g. Open to all Travellers regardless of race, platform, or playstyle. / Invite-only; apply in our Discord."></textarea></div>
     </div>
   </div>
@@ -428,7 +442,7 @@
   <div class="panel">
     <h2>Additional Information</h2>
     <p class="note">One bullet per line. Each line becomes a wiki bullet point.</p>
-    <div class="field full-width"><label>Bullets <span class="q">(optional)</span></label>
+    <div class="field full-width"><label>Bullets</label>
       <textarea id="extra_info" placeholder="Discord: https://discord.gg/…&#10;Members welcome to build anywhere in the region.&#10;The civ does not engage in hostile interactions."></textarea></div>
   </div>
 
@@ -479,6 +493,10 @@ const HELP = {
     "Unlock Portal Glyphs through the story first.",
     "Then interact with the portal in your capital system to read off its 12-glyph address.",
     "Click the glyphs on the dial here, or type the code in."] },
+  civsize: { title:'Civ size', steps:[
+    "How big your civilization is — its category by member count and activity (e.g. Solo, Small, Medium, Large).",
+    "Pick the one that fits; if you're just starting out, Solo or Small is normal.",
+    "Full breakdown of every tier: <a href=\"https://nomanssky.fandom.com/wiki/Civilization_Categories\" target=\"_blank\" rel=\"noopener\" style=\"color:var(--visor)\">Civilization Categories</a>."] },
   wiki: { title:'How to get this onto the wiki', steps:[
     "Copy the code above with the Copy button.",
     "On the wiki, click Add Page / Create New Page and type your civilization's exact name as the title.",
@@ -730,7 +748,7 @@ function buildOutput() {
 
   // ---- History (auto first sentence from founding details + freeform body) ----
   const foundedDate = g('founded_date');
-  const founderName = g('founderlink') || g('founder');
+  const founderName = g('founderlink') || g('leader');
   let historyLead = '';
   if (foundedDate) {
     historyLead = `The ${short} was founded on ${foundedDate}`;
@@ -803,7 +821,7 @@ ${bannerLine}{{Civilized Space infobox
 | government = ${g('government')}
 | civsize = ${g('civsize')}
 | civtype = ${g('civtype')}
-| founder = ${g('founder')}
+| founder = ${g('leader')}
 | founderlink = ${g('founderlink')}
 | leader = ${g('leader')}
 | federation = ${g('federation')}
