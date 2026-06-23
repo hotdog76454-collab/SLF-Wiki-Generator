@@ -128,7 +128,6 @@
       clip-path:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
       display:flex; align-items:center; justify-content:center; position:relative;
     }
-    .glyph-inner .idx { display:none; }
     .glyph-cell.filled { background:var(--visor); transform:translateY(-1px); }
     .glyph-cell.filled .glyph-inner { box-shadow:inset 0 0 14px #45e6de2e; }
     .glyph-sym { width:74%; height:74%; object-fit:contain; display:none;
@@ -137,7 +136,6 @@
     .glyph-hex { display:none; font-family:var(--f-mono); font-size:.95rem; color:var(--visor); }
     .glyph-cell.filled.noimg .glyph-sym { display:none; }
     .glyph-cell.filled.noimg .glyph-hex { display:block; }
-    .glyph-cell.filled .idx { color:var(--visor-dim); }
 
     /* ---- Glyph dial pad (click to enter glyphs) ---- */
     .dial { display:flex; flex-direction:column; gap:.7rem; }
@@ -154,9 +152,9 @@
     .dial-key:hover { border-color:var(--visor); background:#0c1d33; box-shadow:0 0 12px #45e6de44; }
     .dial-key:active { transform:translateY(1px); }
     .dial-key img { width:68%; height:68%; object-fit:contain; filter:drop-shadow(0 0 3px #45e6de88); }
-    .dial-key .kh { display:none; }
+    .dial-key .kh { display:none; font-family:var(--f-mono); font-size:1.05rem; color:var(--visor); }
     .dial-key.noimg img { display:none; }
-    .dial-key.noimg .kh { display:block; font-family:var(--f-mono); font-size:1.05rem; color:var(--visor); }
+    .dial-key.noimg .kh { display:block; }
     .dial-actions { display:flex; gap:6px; }
     .dial-btn {
       flex:1; background:transparent; border:1px solid var(--line); color:var(--hint);
@@ -205,6 +203,8 @@
       font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
       text-transform:uppercase; color:var(--dim);
     }
+    /* qualifier in a label, e.g. "(in-game)" — mono so the parentheses render curved */
+    .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--dim); }
     .field input, .field select {
       background:var(--input); border:1px solid var(--line); border-radius:4px; color:var(--text);
       font-family:var(--f-mono); font-size:.86rem; padding:8px 10px; width:100%;
@@ -220,6 +220,14 @@
     .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
 
     /* ---- Generate + output ---- */
+    .form-error {
+      display:none; align-items:center; gap:.5em; margin-top:1.4rem; padding:11px 14px;
+      border:1px solid var(--hazard); border-radius:5px; background:#ff7a3c14; color:var(--hazard);
+      font-size:.76rem; letter-spacing:.03em;
+    }
+    .form-error::before { content:'⚠'; }
+    .form-error.show { display:flex; }
+
     .btn-generate {
       display:block; width:100%; padding:15px; margin-top:1.6rem;
       background:linear-gradient(135deg, var(--blue), var(--blue-deep));
@@ -266,7 +274,7 @@
 <div class="container">
   <header>
     <div class="eyebrow">Planetary Construction Log</div>
-    <h1>Space Link <span class="hex">Base</span> Creator</h1>
+    <h1><span class="hex">Space Link</span> Base Creator</h1>
     <div class="scanline"></div>
     <a class="nav-chip" href="index.html">Space Link System Atlas →</a>
   </header>
@@ -275,20 +283,14 @@
   <div class="resolver hud"><span class="corners"></span>
     <div class="resolver-head">
       <span class="title">⬡ System Address</span>
-      <span class="sub">Click glyphs to dial, or type the address</span>
+      <span class="sub">Click glyphs, or type the address</span>
     </div>
     <div class="resolver-body">
       <div class="decoder">
         <input type="text" id="b_glyphs" class="glyph-input" maxlength="12" autocomplete="off" spellcheck="false"
                placeholder="DIAL 12 GLYPHS · e.g. 10B3FE16D676">
         <div class="glyph-strip" id="glyph_strip"></div>
-        <div class="coord-readout" id="coord_readout">
-          <div class="coord-cell"><div class="k">X</div><div class="v" id="cx">––––</div></div>
-          <div class="coord-cell"><div class="k">Y</div><div class="v" id="cy">––––</div></div>
-          <div class="coord-cell"><div class="k">Z</div><div class="v" id="cz">––––</div></div>
-          <div class="coord-cell"><div class="k">System</div><div class="v" id="cs">––––</div></div>
-        </div>
-        <div class="resolver-status" id="resolver_status">Optional — dial or type the system glyphs to confirm the location.</div>
+        <div class="resolver-status" id="resolver_status">Optional — dial or type the system's 12 glyphs.</div>
       </div>
       <div class="dial">
         <div class="dial-label">⬡ Glyph Dial</div>
@@ -308,7 +310,7 @@
       <div class="field"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
       <div class="field"><label>Galaxy</label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
       <div class="field"><label>Region</label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
-      <div class="field"><label>Builder name (in-game)</label><input type="text" id="builder" placeholder="e.g. KING-MINION2"></div>
+      <div class="field"><label>Builder name <span class="q">(in-game)</span></label><input type="text" id="builder" placeholder="e.g. KING-MINION2"></div>
     </div>
   </div>
 
@@ -318,13 +320,14 @@
       <div class="field"><label>Base name</label><input type="text" id="b_name" placeholder="e.g. SLF Desert Base"></div>
       <div class="field"><label>System name</label><input type="text" id="b_system" placeholder="e.g. SLF - Guncam"></div>
       <div class="field"><label>Planet name</label><input type="text" id="b_planet" placeholder="e.g. Edleri Sennu"></div>
-      <div class="field"><label>Moon (only if base is on a moon)</label><input type="text" id="b_moon" placeholder="e.g. moon name"></div>
-      <div class="field full-width"><label>Coordinates (axes — from the analysis visor)</label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
+      <div class="field"><label>Moon <span class="q">(only if base is on a moon)</span></label><input type="text" id="b_moon" placeholder="e.g. moon name"></div>
+      <div class="field full-width"><label>Coordinates <span class="q">(axes — from the analysis visor)</span></label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
       <div class="field full-width"><label>Short description</label><input type="text" id="b_desc" placeholder="e.g. Habitation outpost on an extreme desert planet."></div>
       <div class="field full-width"><label>Additional info</label><input type="text" id="b_info" placeholder="e.g. Built by the Space Link Federation as an outpost."></div>
     </div>
   </div>
 
+  <div class="form-error" id="form_error"></div>
   <button class="btn-generate" onclick="buildOutput()">Generate wiki code</button>
 
   <div class="output-section" id="output_section">
@@ -339,26 +342,48 @@ const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
 
-/* ---- glyphs -> coordinates (verified against SLF - Ganggya-Opiu) ---- */
-const RE12 = /^[0-9A-F]{12}$/;
-const hx = (n, w) => ((n & ((1 << (4 * w)) - 1)) >>> 0).toString(16).toUpperCase().padStart(w, '0');
-function glyphsToCoords(glyphs) {
-  const s = glyphs.trim().toUpperCase();
-  if (!RE12.test(s)) throw new Error('Glyphs must be exactly 12 hex digits, e.g. 10B3FE16D676');
-  const sss = s.slice(1,4), yy = s.slice(4,6), zzz = s.slice(6,9), xxx = s.slice(9,12);
-  const Xg = (parseInt(xxx,16) + 0x7FF) & 0xFFF;
-  const Yg = (parseInt(yy,16) - 0x81) & 0xFF;
-  const Zg = (parseInt(zzz,16) + 0x7FF) & 0xFFF;
-  const SSSS = parseInt('0' + sss, 16);
-  return hx(Xg,4) + ':' + hx(Yg,4) + ':' + hx(Zg,4) + ':' + hx(SSSS,4);
+/* ---- Name filter: keep wiki pages clear of slurs / profanity ----
+   Substring list catches plurals/compounds; exact list is for short words
+   that would false-positive as substrings (e.g. "ass" in "assassin"). */
+const BLOCK_SUB = ['fuck','shit','cunt','bitch','pussy','asshole','dickhead','motherfuck','bullshit',
+  'whore','bollock','douche','nigger','nigga','faggot','retard','chink','gook','wetback','beaner',
+  'sandnigger','raghead','towelhead','kike','spic','tranny','paki','zipperhead'];
+const BLOCK_EXACT = ['fag','jap','coon','gyp','wog','dago','mick','kraut','homo','negro','redskin',
+  'dyke','dick','cock','cum','tit','tits','ass','piss','prick','twat','slut'];
+function deLeet(s) {
+  return s.toLowerCase()
+    .replace(/[@4]/g,'a').replace(/3/g,'e').replace(/[1!|]/g,'i')
+    .replace(/0/g,'o').replace(/[5$]/g,'s').replace(/7/g,'t')
+    .replace(/[^a-z]/g,'');
+}
+function isBadText(text) {
+  if (!text) return false;
+  for (const raw of text.toLowerCase().split(/[^a-z0-9@$!|]+/)) {
+    const w = deLeet(raw);
+    if (!w) continue;
+    if (BLOCK_EXACT.includes(w)) return true;
+    for (const b of BLOCK_SUB) { if (w.includes(b)) return true; }
+  }
+  return false;
+}
+// Coded fields are NOT names — skip them so e.g. star class "F4G" / "A55" aren't
+// misread as slurs by the de-leet step, and the hex glyph address isn't scanned.
+const FILTER_SKIP = new Set(['glyphs', 'b_glyphs', 'star_class', 'b_axes']);
+function firstBadField() {
+  for (const el of document.querySelectorAll('input[type="text"]')) {
+    if (FILTER_SKIP.has(el.id)) continue;
+    if (isBadText(el.value)) return el;
+  }
+  return null;
 }
 
-/* ---- Portal Address Resolver (signature) ---- */
+/* ---- Portal Address Resolver (glyph entry — base pages store the raw glyphs,
+       not decoded coordinates, so there's no coordinate readout here) ---- */
 function buildGlyphStrip() {
   let html = '';
   for (let i = 0; i < 12; i++) {
     html += `<div class="glyph-cell"><div class="glyph-inner">
-      <img class="glyph-sym" alt=""><span class="glyph-hex"></span><span class="idx">${i + 1}</span>
+      <img class="glyph-sym" alt=""><span class="glyph-hex"></span>
     </div></div>`;
   }
   document.getElementById('glyph_strip').innerHTML = html;
@@ -386,27 +411,14 @@ function updateResolver() {
     }
   });
 
-  const readout = document.getElementById('coord_readout');
   const status = document.getElementById('resolver_status');
-  const setCoords = (x, y, z, sys) => {
-    document.getElementById('cx').textContent = x;
-    document.getElementById('cy').textContent = y;
-    document.getElementById('cz').textContent = z;
-    document.getElementById('cs').textContent = sys;
-  };
-
   if (s.length === 12) {
-    const [x, y, z, sys] = glyphsToCoords(s).split(':');
-    setCoords(x, y, z, sys);
-    readout.classList.add('resolved');
     status.className = 'resolver-status ok';
-    status.textContent = 'Address resolved — galactic coordinates locked.';
+    status.textContent = 'Address complete — 12 glyphs entered.';
   } else {
-    setCoords('––––', '––––', '––––', '––––');
-    readout.classList.remove('resolved');
     status.className = 'resolver-status';
     status.textContent = s.length === 0
-      ? 'Optional — dial or type the system glyphs to confirm the location.'
+      ? "Optional — dial or type the system's 12 glyphs."
       : `Address incomplete — ${s.length} of 12 glyphs entered.`;
   }
 }
@@ -440,6 +452,18 @@ document.getElementById('dial_clear').addEventListener('click', () => {
 
 /* ---- Build the base page (admin-approved format — do not reorder fields) ---- */
 function buildOutput() {
+  // Keep slurs / profanity off the wiki before anything else.
+  const fe = document.getElementById('form_error');
+  const badEl = firstBadField();
+  if (badEl) {
+    fe.textContent = 'That name contains language that isn’t allowed on the wiki — please edit it before generating.';
+    fe.classList.add('show');
+    badEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    badEl.focus();
+    return;
+  }
+  fe.classList.remove('show');
+
   const civ    = g('civ_name');
   const galaxy = g('galaxy');
   const region = g('region');

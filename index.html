@@ -128,7 +128,6 @@
       clip-path:polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
       display:flex; align-items:center; justify-content:center; position:relative;
     }
-    .glyph-inner .idx { display:none; }
     .glyph-cell.filled { background:var(--visor); transform:translateY(-1px); }
     .glyph-cell.filled .glyph-inner { box-shadow:inset 0 0 14px #45e6de2e; }
     .glyph-sym { width:74%; height:74%; object-fit:contain; display:none;
@@ -137,7 +136,6 @@
     .glyph-hex { display:none; font-family:var(--f-mono); font-size:.95rem; color:var(--visor); }
     .glyph-cell.filled.noimg .glyph-sym { display:none; }
     .glyph-cell.filled.noimg .glyph-hex { display:block; }
-    .glyph-cell.filled .idx { color:var(--visor-dim); }
 
     /* ---- Glyph dial pad (click to enter glyphs) ---- */
     .dial { display:flex; flex-direction:column; gap:.7rem; }
@@ -154,9 +152,9 @@
     .dial-key:hover { border-color:var(--visor); background:#0c1d33; box-shadow:0 0 12px #45e6de44; }
     .dial-key:active { transform:translateY(1px); }
     .dial-key img { width:68%; height:68%; object-fit:contain; filter:drop-shadow(0 0 3px #45e6de88); }
-    .dial-key .kh { display:none; }
+    .dial-key .kh { display:none; font-family:var(--f-mono); font-size:1.05rem; color:var(--visor); }
     .dial-key.noimg img { display:none; }
-    .dial-key.noimg .kh { display:block; font-family:var(--f-mono); font-size:1.05rem; color:var(--visor); }
+    .dial-key.noimg .kh { display:block; }
     .dial-actions { display:flex; gap:6px; }
     .dial-btn {
       flex:1; background:transparent; border:1px solid var(--line); color:var(--hint);
@@ -205,6 +203,8 @@
       font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
       text-transform:uppercase; color:var(--dim);
     }
+    /* qualifier in a label, e.g. "(no prefix)" — mono so the parentheses render curved */
+    .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--dim); }
     .field input, .field select {
       background:var(--input); border:1px solid var(--line); border-radius:4px; color:var(--text);
       font-family:var(--f-mono); font-size:.86rem; padding:8px 10px; width:100%;
@@ -250,6 +250,14 @@
     .planet-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:9px; }
 
     /* ---- Generate + output ---- */
+    .form-error {
+      display:none; align-items:center; gap:.5em; margin-top:1.4rem; padding:11px 14px;
+      border:1px solid var(--hazard); border-radius:5px; background:#ff7a3c14; color:var(--hazard);
+      font-size:.76rem; letter-spacing:.03em;
+    }
+    .form-error::before { content:'⚠'; }
+    .form-error.show { display:flex; }
+
     .btn-generate {
       display:block; width:100%; padding:15px; margin-top:1.6rem;
       background:linear-gradient(135deg, var(--blue), var(--blue-deep));
@@ -296,7 +304,7 @@
 <div class="container">
   <header>
     <div class="eyebrow">Stellar Cartography Terminal</div>
-    <h1>Space Link <span class="hex">System</span> Atlas</h1>
+    <h1><span class="hex">Space Link</span> System Atlas</h1>
     <div class="scanline"></div>
     <a class="nav-chip" href="base.html">Space Link Base Creator →</a>
   </header>
@@ -305,7 +313,7 @@
   <div class="resolver hud"><span class="corners"></span>
     <div class="resolver-head">
       <span class="title">⬡ Portal Address</span>
-      <span class="sub">Click glyphs to dial, or type the address</span>
+      <span class="sub">Click glyphs, or type the address</span>
     </div>
     <div class="resolver-body">
       <div class="decoder">
@@ -345,7 +353,7 @@
   <div class="panel">
     <h2>Stellar Data</h2>
     <div class="field-grid">
-      <div class="field"><label>System name (no prefix)</label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
+      <div class="field"><label>System name <span class="q">(no prefix)</span></label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
       <div class="field"><label>Star class</label><input type="text" id="star_class" placeholder="e.g. G4, F0p"></div>
       <div class="field full-width"><label>Star colour</label>
         <div class="swatches" id="swatches">
@@ -360,13 +368,13 @@
       <div class="field"><label>Faction</label>
         <select id="faction"><option>Gek</option><option>Vy'keen</option><option>Korvax</option><option>Uncharted</option></select>
       </div>
-      <div class="field"><label>Economy (galaxy map)</label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
+      <div class="field"><label>Economy <span class="q">(galaxy map)</span></label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
       <div class="field"><label>Conflict level</label><input type="text" id="conflict" placeholder="e.g. Tranquil"></div>
       <div class="field" id="dissonant_field"><label>Dissonant planets?</label>
         <select id="dissonant"><option>No</option><option>Yes</option></select>
         <p class="hint" id="dissonant_hint">Select Yes if any planet in the system has <span class="ds-term">"Dissonance Detected"</span> in its description.</p>
       </div>
-      <div class="field" id="water_field" style="display:none"><label>Pure water (ocean) worlds?</label>
+      <div class="field" id="water_field" style="display:none"><label>Pure water <span class="q">(ocean)</span> worlds?</label>
         <select id="water"><option>No</option><option>Yes</option></select>
         <p class="hint">Full ocean worlds only spawn in purple systems.</p>
       </div>
@@ -396,7 +404,7 @@
 
   <div class="panel">
     <h2>Bases</h2>
-    <p class="note">Name each base to match its base-page title — they'll be listed and linked under ==Bases==.</p>
+    <p class="note">Name each base to match its base-page title — they'll be linked under the Bases section (<span class="q">==Bases==</span>).</p>
     <div class="field" style="max-width:220px"><label>Number of bases</label>
       <select id="base_count">
         <option value="0" selected>0</option>
@@ -407,6 +415,7 @@
     <div id="base_rows" style="margin-top:11px"></div>
   </div>
 
+  <div class="form-error" id="form_error"></div>
   <button class="btn-generate" onclick="buildOutput()">Generate wiki code</button>
 
   <div class="output-section" id="output_section">
@@ -420,6 +429,41 @@
 const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@master/img/glyphs/';
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+/* ---- Name filter: keep wiki pages clear of slurs / profanity ----
+   Substring list catches plurals/compounds; exact list is for short words
+   that would false-positive as substrings (e.g. "ass" in "assassin"). */
+const BLOCK_SUB = ['fuck','shit','cunt','bitch','pussy','asshole','dickhead','motherfuck','bullshit',
+  'whore','bollock','douche','nigger','nigga','faggot','retard','chink','gook','wetback','beaner',
+  'sandnigger','raghead','towelhead','kike','spic','tranny','paki','zipperhead'];
+const BLOCK_EXACT = ['fag','jap','coon','gyp','wog','dago','mick','kraut','homo','negro','redskin',
+  'dyke','dick','cock','cum','tit','tits','ass','piss','prick','twat','slut'];
+function deLeet(s) {
+  return s.toLowerCase()
+    .replace(/[@4]/g,'a').replace(/3/g,'e').replace(/[1!|]/g,'i')
+    .replace(/0/g,'o').replace(/[5$]/g,'s').replace(/7/g,'t')
+    .replace(/[^a-z]/g,'');
+}
+function isBadText(text) {
+  if (!text) return false;
+  for (const raw of text.toLowerCase().split(/[^a-z0-9@$!|]+/)) {
+    const w = deLeet(raw);
+    if (!w) continue;
+    if (BLOCK_EXACT.includes(w)) return true;
+    for (const b of BLOCK_SUB) { if (w.includes(b)) return true; }
+  }
+  return false;
+}
+// Coded fields are NOT names — skip them so e.g. star class "F4G" / "A55" aren't
+// misread as slurs by the de-leet step, and the hex glyph address isn't scanned.
+const FILTER_SKIP = new Set(['glyphs', 'b_glyphs', 'star_class', 'b_axes']);
+function firstBadField() {
+  for (const el of document.querySelectorAll('input[type="text"]')) {
+    if (FILTER_SKIP.has(el.id)) continue;
+    if (isBadText(el.value)) return el;
+  }
+  return null;
+}
 
 /* ---- Planets & moons rows ---- */
 function buildRows() {
@@ -446,15 +490,36 @@ function buildRows() {
         <div class="field"><label>Extreme weather?</label><select id="p${i}_weather"><option>No</option><option>Yes</option></select></div>
         <div class="field"><label>Aggressive sentinels?</label><select id="p${i}_sent"><option>No</option><option>Yes</option></select></div>
         ${orbitsField}
-        <div class="field full-width"><label>Resources (comma separated)</label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
-        <div class="field full-width"><label>Notes (optional)</label><input type="text" id="p${i}_notes" placeholder="Any extra notes"></div>
+        <div class="field full-width"><label>Resources <span class="q">(comma separated)</span></label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
+        <div class="field full-width"><label>Notes <span class="q">(optional)</span></label><input type="text" id="p${i}_notes" placeholder="Any extra notes"></div>
       </div>
     </div>`;
   }
   document.getElementById('planet_rows').innerHTML = html;
+  updateOrbitsOptions();
 }
 document.getElementById('planet_count').addEventListener('change', buildRows);
 document.getElementById('moon_count').addEventListener('change', buildRows);
+
+/* Show each planet's real name in the moon "orbits which planet?" dropdowns,
+   falling back to "Planet N" until a name is typed. */
+function updateOrbitsOptions() {
+  const pCount = parseInt(document.getElementById('planet_count').value);
+  const mCount = parseInt(document.getElementById('moon_count').value);
+  for (let m = pCount; m < pCount + mCount; m++) {
+    const sel = document.getElementById(`p${m}_orbits`);
+    if (!sel) continue;
+    for (let p = 0; p < pCount; p++) {
+      const opt = sel.options[p];
+      if (!opt) continue;
+      const nm = (document.getElementById(`p${p}_name`)?.value || '').trim();
+      opt.textContent = nm ? `Planet ${p + 1} — ${nm}` : `Planet ${p + 1}`;
+    }
+  }
+}
+document.getElementById('planet_rows').addEventListener('input', e => {
+  if (e.target.id && e.target.id.endsWith('_name')) updateOrbitsOptions();
+});
 buildRows();
 
 function buildBaseRows() {
@@ -487,7 +552,7 @@ function buildGlyphStrip() {
   let html = '';
   for (let i = 0; i < 12; i++) {
     html += `<div class="glyph-cell"><div class="glyph-inner">
-      <img class="glyph-sym" alt=""><span class="glyph-hex"></span><span class="idx">${i + 1}</span>
+      <img class="glyph-sym" alt=""><span class="glyph-hex"></span>
     </div></div>`;
   }
   document.getElementById('glyph_strip').innerHTML = html;
@@ -616,6 +681,18 @@ updatePurpleUI();
 
 /* ---- Build the wiki page (admin-approved format — do not reorder fields) ---- */
 function buildOutput() {
+  // Keep slurs / profanity off the wiki before anything else.
+  const fe = document.getElementById('form_error');
+  const badEl = firstBadField();
+  if (badEl) {
+    fe.textContent = 'That name contains language that isn’t allowed on the wiki — please edit it before generating.';
+    fe.classList.add('show');
+    badEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    badEl.focus();
+    return;
+  }
+  fe.classList.remove('show');
+
   const prefix = g('prefix');
   const civ = g('civ_name');
   const galaxy = g('galaxy');
