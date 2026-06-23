@@ -51,17 +51,6 @@
 
     .container { max-width:940px; margin:0 auto; position:relative; z-index:1; }
 
-    /* ---- HUD corner-bracket frame (signature emphasis) ---- */
-    .hud { position:relative; }
-    .hud::before, .hud::after,
-    .hud > .corners::before, .hud > .corners::after {
-      content:''; position:absolute; width:16px; height:16px; pointer-events:none;
-    }
-    .hud::before { top:-1px; left:-1px; border-top:1.5px solid var(--visor); border-left:1.5px solid var(--visor); }
-    .hud::after  { bottom:-1px; right:-1px; border-bottom:1.5px solid var(--visor); border-right:1.5px solid var(--visor); }
-    .hud > .corners::before { top:-1px; right:-1px; border-top:1.5px solid var(--visor); border-right:1.5px solid var(--visor); }
-    .hud > .corners::after  { bottom:-1px; left:-1px; border-bottom:1.5px solid var(--visor); border-left:1.5px solid var(--visor); }
-
     /* ---- Header ---- */
     header { text-align:center; margin-bottom:2.25rem; }
     .eyebrow {
@@ -86,9 +75,7 @@
     }
     .nav-chip:hover { border-color:var(--blue); color:var(--text); box-shadow:0 0 16px #2d7bff44; }
 
-    /* ---- Portal Address Resolver (the signature) ---- */
-    /* On the base page the decoder + dial are two self-sizing modules, so the
-       short decoder doesn't drag empty space down beside the taller dial. */
+    /* ---- Portal Address Resolver (two self-sizing modules) ---- */
     .resolver { margin-bottom:1.6rem; }
     .resolver-head {
       display:flex; justify-content:space-between; align-items:baseline; flex-wrap:wrap; gap:.5rem;
@@ -168,14 +155,6 @@
     }
     .dial-btn:hover { border-color:var(--visor-dim); color:var(--text); }
 
-    .coord-readout {
-      display:grid; grid-template-columns:repeat(4,1fr); gap:1px;
-      background:var(--line); border:1px solid var(--line); border-radius:4px; overflow:hidden;
-    }
-    .coord-cell { background:var(--void2); padding:.7rem .4rem; text-align:center; }
-    .coord-cell .k { font-family:var(--f-display); font-size:.58rem; letter-spacing:.2em; color:var(--dim); text-transform:uppercase; }
-    .coord-cell .v { font-family:var(--f-mono); font-size:1.15rem; color:var(--text); margin-top:.25rem; letter-spacing:.04em; }
-    .coord-readout.resolved .coord-cell .v { color:var(--visor); text-shadow:0 0 14px #45e6de55; }
     .resolver-status {
       margin-top:.85rem; font-size:.74rem; letter-spacing:.05em; color:var(--hint);
       display:flex; align-items:center; gap:.5em;
@@ -206,7 +185,7 @@
     .field { display:flex; flex-direction:column; gap:5px; }
     .field label {
       font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
-      text-transform:uppercase; color:var(--dim);
+      text-transform:uppercase; color:var(--dim); display:inline-flex; align-items:center; flex-wrap:wrap;
     }
     /* qualifier in a label, e.g. "(in-game)" — mono so the parentheses render curved */
     .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--note); }
@@ -223,6 +202,51 @@
     .full-width { grid-column:1/-1; }
     .hint { font-size:.68rem; color:var(--hint); letter-spacing:.03em; line-height:1.4; }
     .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
+
+    /* ---- "How to get this info" helper button (bright white circle, blue ?) ---- */
+    .help-btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:16px; height:16px; margin-left:.45em; vertical-align:middle; flex:none;
+      border:none; border-radius:50%; background:#ffffff; color:var(--blue); cursor:pointer;
+      font-family:var(--f-mono); font-size:.72rem; font-weight:700; line-height:1; padding:0;
+      box-shadow:0 0 8px #ffffff66; transition:box-shadow .15s, transform .1s;
+    }
+    .help-btn:hover { box-shadow:0 0 13px #ffffffcc; transform:scale(1.12); }
+
+    /* ---- Help side panel ---- */
+    .help-panel {
+      position:fixed; top:0; right:0; height:100vh; width:min(390px, 94vw);
+      background:linear-gradient(180deg, #0b1626, #070d18); border-left:1px solid var(--line);
+      z-index:61; transform:translateX(100%); transition:transform .25s ease;
+      display:flex; flex-direction:column; box-shadow:-20px 0 50px #02050a99;
+    }
+    .help-panel.open { transform:none; }
+    .help-panel-head {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      padding:1.2rem 1.3rem; border-bottom:1px solid var(--line-soft); flex:none;
+    }
+    .help-panel-head h3 {
+      font-family:var(--f-display); font-size:.8rem; letter-spacing:.16em;
+      text-transform:uppercase; color:var(--visor);
+    }
+    .help-close {
+      background:transparent; border:1px solid var(--line); border-radius:4px; color:var(--dim);
+      cursor:pointer; font-family:var(--f-mono); font-size:.85rem; width:28px; height:28px; flex:none;
+      transition:border-color .15s, color .15s;
+    }
+    .help-close:hover { border-color:var(--visor); color:var(--text); }
+    .help-body { padding:1.2rem 1.3rem; overflow-y:auto; }
+    .help-body ol { margin:0 0 .4rem 1.1rem; padding:0; }
+    .help-body li { color:var(--note); font-size:.82rem; line-height:1.6; margin-bottom:.6rem; }
+    .help-img { width:100%; border:1px solid var(--line); border-radius:5px; margin:.7rem 0 0; display:block; background:var(--void2); cursor:zoom-in; transition:border-color .15s; }
+    .help-img:hover { border-color:var(--visor); }
+    .help-zoom { font-size:.68rem; color:var(--faint); margin-top:.85rem; letter-spacing:.03em; }
+    .lightbox {
+      position:fixed; inset:0; z-index:70; background:#02050af2; padding:2rem; cursor:zoom-out;
+      display:none; align-items:center; justify-content:center;
+    }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:100%; max-height:100%; border:1px solid var(--line); border-radius:4px; box-shadow:0 0 50px #000; }
 
     /* ---- Generate + output ---- */
     .form-error {
@@ -257,19 +281,23 @@
       font-family:var(--f-mono); font-size:.78rem; line-height:1.62; white-space:pre;
       overflow:auto; color:var(--mint); max-height:520px;
     }
+    .output-actions { display:flex; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:.8rem; }
     .btn-copy {
-      margin-top:.8rem; padding:9px 22px; background:transparent; border:1px solid var(--visor);
+      padding:9px 22px; background:transparent; border:1px solid var(--visor);
       border-radius:4px; color:var(--visor); font-family:var(--f-display); letter-spacing:.14em;
       text-transform:uppercase; font-size:.72rem; cursor:pointer; transition:background .2s;
     }
     .btn-copy:hover { background:#45e6de1a; }
     .btn-copy.copied { color:var(--mint); border-color:var(--mint); }
+    .wiki-howto {
+      background:transparent; border:none; cursor:pointer; font-family:var(--f-display);
+      font-weight:700; text-transform:uppercase; letter-spacing:.12em; font-size:.74rem;
+      color:var(--visor); text-decoration:underline; text-underline-offset:3px; padding:0;
+    }
+    .wiki-howto:hover { color:var(--text); }
 
     @media (max-width:760px) { .resolver-body { grid-template-columns:1fr; } }
-    @media (max-width:560px) {
-      .glyph-strip { grid-template-columns:repeat(6,1fr); }
-      .coord-readout { grid-template-columns:repeat(2,1fr); }
-    }
+    @media (max-width:560px) { .glyph-strip { grid-template-columns:repeat(6,1fr); } }
     @media (prefers-reduced-motion: reduce) {
       * { transition:none !important; animation:none !important; }
     }
@@ -287,7 +315,7 @@
   <!-- SIGNATURE: Portal Address Resolver (the base's home system) -->
   <div class="resolver">
     <div class="resolver-head">
-      <span class="title">⬡ System Address</span>
+      <span class="title">⬡ System Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
       <span class="sub">Click glyphs, or type the address</span>
     </div>
     <div class="resolver-body">
@@ -313,8 +341,8 @@
     <p class="note">These name your civ on the wiki. Set them once and they carry through every page.</p>
     <div class="field-grid">
       <div class="field"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
-      <div class="field"><label>Galaxy</label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
-      <div class="field"><label>Region</label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
+      <div class="field"><label>Galaxy <button class="help-btn" type="button" data-help="galaxy" title="How to get this info">?</button></label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
+      <div class="field"><label>Region <button class="help-btn" type="button" data-help="region" title="How to get this info">?</button></label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
       <div class="field"><label>Builder name <span class="q">(in-game)</span></label><input type="text" id="builder" placeholder="e.g. KING-MINION2"></div>
     </div>
   </div>
@@ -323,10 +351,10 @@
     <h2>Base Data</h2>
     <div class="field-grid">
       <div class="field"><label>Base name</label><input type="text" id="b_name" placeholder="e.g. SLF Desert Base"></div>
-      <div class="field"><label>System name</label><input type="text" id="b_system" placeholder="e.g. SLF - Guncam"></div>
-      <div class="field"><label>Planet name</label><input type="text" id="b_planet" placeholder="e.g. Edleri Sennu"></div>
-      <div class="field"><label>Moon <span class="q">(only if base is on a moon)</span></label><input type="text" id="b_moon" placeholder="e.g. moon name"></div>
-      <div class="field full-width"><label>Coordinates <span class="q">(axes — from the analysis visor)</span></label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
+      <div class="field"><label>System name <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="b_system" placeholder="e.g. SLF - Guncam"></div>
+      <div class="field"><label>Planet name <button class="help-btn" type="button" data-help="planet_name" title="How to get this info">?</button></label><input type="text" id="b_planet" placeholder="e.g. Edleri Sennu"></div>
+      <div class="field"><label>Moon <span class="q">(only if base is on a moon)</span> <button class="help-btn" type="button" data-help="moon" title="How to get this info">?</button></label><input type="text" id="b_moon" placeholder="e.g. moon name"></div>
+      <div class="field full-width"><label>Coordinates <span class="q">(axes — from the analysis visor)</span> <button class="help-btn" type="button" data-help="axes" title="How to get this info">?</button></label><input type="text" id="b_axes" placeholder="e.g. +51.01, +84.46"></div>
       <div class="field full-width"><label>Short description</label><input type="text" id="b_desc" placeholder="e.g. Habitation outpost on an extreme desert planet."></div>
       <div class="field full-width"><label>Additional info</label><input type="text" id="b_info" placeholder="e.g. Built by the Space Link Federation as an outpost."></div>
     </div>
@@ -338,14 +366,95 @@
   <div class="output-section" id="output_section">
     <div class="output-head">Base record entry</div>
     <div class="output-box" id="output_box"></div>
-    <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
+    <div class="output-actions">
+      <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
+      <button class="wiki-howto" type="button" data-help="wiki">How To Get This Onto The Wiki →</button>
+    </div>
   </div>
 </div>
+
+<!-- Help side panel -->
+<div class="help-panel" id="help_panel" aria-hidden="true">
+  <div class="help-panel-head">
+    <h3 id="help_title">Help</h3>
+    <button class="help-close" id="help_close" type="button" aria-label="Close">✕</button>
+  </div>
+  <div class="help-body" id="help_body"></div>
+</div>
+<div class="lightbox" id="lightbox"><img id="lightbox_img" alt=""></div>
 
 <script>
 const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@master/img/glyphs/';
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+/* ---- Help content (text steps now; drop matching screenshots into a /help folder) ---- */
+const HELP_IMG_BASE = 'help/';
+const HELP = {
+  galaxy: { title:'Galaxy', steps:[
+    "Open the Galaxy Map (from a Space Station teleporter, or hold the pulse-drive / warp menu).",
+    "The galaxy's name is shown on the Galaxy Map screen — that's your galaxy."], imgs:['galaxy.png'] },
+  region: { title:'Region', steps:[
+    "Open your Log / Discoveries from the pause menu.",
+    "Discovered systems are grouped by region — the region name is the header of the group your system is in.",
+    "It also flashes in the corner the first time you warp into a new region."], imgs:['region.png'] },
+  system_name: { title:'System name', steps:[
+    "The system's name appears top-left when you warp in, and in your Discoveries.",
+    "Use the system this base sits in."], imgs:['system-name.png'] },
+  planet_name: { title:'Planet name', steps:[
+    "A planet's name shows when you scan it or select it in the system view.",
+    "Use the planet (or moon) this base is built on."], imgs:['planet-name.png'] },
+  moon: { title:'Moon', steps:[
+    "Only fill this if the base is on a MOON, not a planet.",
+    "A moon's name shows when you scan or select it. Leave blank for planets."], imgs:['moon.png'] },
+  axes: { title:'Coordinates (axes)', steps:[
+    "Stand at your base and open the Analysis Visor.",
+    "The planetary coordinates — two numbers like +51.01, -179.46 — are shown on the visor.",
+    "Enter them exactly as shown, including the + / − signs."], imgs:['axes.png'] },
+  glyphs: { title:'Portal glyphs', steps:[
+    "Unlock Portal Glyphs first — talk to Travellers at space stations (one glyph each).",
+    "Interact with a portal (or read a Traveller grave) to see the system's 12-glyph address.",
+    "Click the glyphs on the dial here, or type the 12-character code."], imgs:['glyphs.png'] },
+  wiki: { title:'How to get this onto the wiki', steps:[
+    "Copy the code above with the Copy button.",
+    "On the wiki, click Add Page / Create New Page and type the exact page title.",
+    "In the editor, switch to the SOURCE editor — open the pencil / ▾ menu (top-right) and choose 'Source editor'. Pasting only works here; the Visual editor won't read the code.",
+    "Clear the box, paste the code, then click Publish / Save. Done."],
+    imgs:['wiki-1.png','wiki-2.png','wiki-3.png','wiki-4.png'] }
+};
+function openHelp(key) {
+  const h = HELP[key];
+  if (!h) return;
+  document.getElementById('help_title').textContent = h.title;
+  let html = '<ol>' + h.steps.map(s => `<li>${s}</li>`).join('') + '</ol>';
+  // Auto-load as many screenshots as exist: <key>-1.png, <key>-2.png, ... (up to 6).
+  // Missing ones remove themselves, so add 1, 2 or more per field — no code changes.
+  for (let i = 1; i <= 6; i++) {
+    html += `<img class="help-img" src="${HELP_IMG_BASE}${key}-${i}.png" alt="" onerror="this.remove()">`;
+  }
+  html += '<p class="help-zoom">Click an image to view it full-size.</p>';
+  document.getElementById('help_body').innerHTML = html;
+  document.getElementById('help_panel').classList.add('open');
+}
+function closeHelp() { document.getElementById('help_panel').classList.remove('open'); }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-help]');
+  if (b) { e.preventDefault(); openHelp(b.dataset.help); }
+});
+document.getElementById('help_close').addEventListener('click', closeHelp);
+
+/* Click a help screenshot to view it full-size (screenshots are kept full on
+   purpose, so this lets the reader actually read them). */
+const _lb = document.getElementById('lightbox');
+const _lbImg = document.getElementById('lightbox_img');
+document.getElementById('help_body').addEventListener('click', e => {
+  const img = e.target.closest('.help-img');
+  if (img) { _lbImg.src = img.src; _lb.classList.add('open'); }
+});
+_lb.addEventListener('click', () => _lb.classList.remove('open'));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { _lb.classList.remove('open'); closeHelp(); }
+});
 
 /* ---- Name filter: keep wiki pages clear of slurs / profanity ----
    Substring list catches plurals/compounds; exact list is for short words

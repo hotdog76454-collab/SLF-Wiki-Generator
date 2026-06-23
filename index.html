@@ -51,17 +51,6 @@
 
     .container { max-width:940px; margin:0 auto; position:relative; z-index:1; }
 
-    /* ---- HUD corner-bracket frame (signature emphasis) ---- */
-    .hud { position:relative; }
-    .hud::before, .hud::after,
-    .hud > .corners::before, .hud > .corners::after {
-      content:''; position:absolute; width:16px; height:16px; pointer-events:none;
-    }
-    .hud::before { top:-1px; left:-1px; border-top:1.5px solid var(--visor); border-left:1.5px solid var(--visor); }
-    .hud::after  { bottom:-1px; right:-1px; border-bottom:1.5px solid var(--visor); border-right:1.5px solid var(--visor); }
-    .hud > .corners::before { top:-1px; right:-1px; border-top:1.5px solid var(--visor); border-right:1.5px solid var(--visor); }
-    .hud > .corners::after  { bottom:-1px; left:-1px; border-bottom:1.5px solid var(--visor); border-left:1.5px solid var(--visor); }
-
     /* ---- Header ---- */
     header { text-align:center; margin-bottom:2.25rem; }
     .eyebrow {
@@ -206,7 +195,7 @@
     .field { display:flex; flex-direction:column; gap:5px; }
     .field label {
       font-family:var(--f-display); font-size:.66rem; letter-spacing:.12em;
-      text-transform:uppercase; color:var(--dim);
+      text-transform:uppercase; color:var(--dim); display:inline-flex; align-items:center; flex-wrap:wrap;
     }
     /* qualifier in a label, e.g. "(no prefix)" — mono so the parentheses render curved */
     .field label .q { font-family:var(--f-mono); text-transform:none; letter-spacing:.02em; color:var(--note); }
@@ -224,35 +213,50 @@
     .hint { font-size:.68rem; color:var(--hint); letter-spacing:.03em; line-height:1.4; }
     .note { font-size:.74rem; color:var(--note); margin-bottom:13px; line-height:1.5; }
 
-    /* star-colour swatches (real star colours = the data's true values) */
-    .swatches { display:flex; flex-wrap:wrap; gap:8px; }
-    .swatch {
-      display:flex; align-items:center; gap:7px; background:var(--input);
-      border:1px solid var(--line); color:var(--dim); font-family:var(--f-display);
-      text-transform:uppercase; letter-spacing:.1em; font-size:.66rem; padding:8px 13px;
-      border-radius:4px; cursor:pointer; transition:all .2s;
+    /* ---- "How to get this info" helper button (bright white circle, blue ?) ---- */
+    .help-btn {
+      display:inline-flex; align-items:center; justify-content:center;
+      width:16px; height:16px; margin-left:.45em; vertical-align:middle; flex:none;
+      border:none; border-radius:50%; background:#ffffff; color:var(--blue); cursor:pointer;
+      font-family:var(--f-mono); font-size:.72rem; font-weight:700; line-height:1; padding:0;
+      box-shadow:0 0 8px #ffffff66; transition:box-shadow .15s, transform .1s;
     }
-    .swatch .dot { width:12px; height:12px; border-radius:50%; background:var(--sc); box-shadow:0 0 9px var(--sc); }
-    .swatch:hover { border-color:var(--visor-dim); color:var(--text); }
-    .swatch.active { border-color:var(--blue); color:var(--text); background:#0c1d38; box-shadow:0 0 0 1px var(--blue), 0 0 14px #2d7bff3a; }
+    .help-btn:hover { box-shadow:0 0 13px #ffffffcc; transform:scale(1.12); }
 
-    /* dissonant state (purple) + purple-star lock */
-    #dissonant_field.danger select { border-color:var(--dissonant); box-shadow:0 0 0 1px var(--dissonant), 0 0 14px #bf7bff44; color:var(--dissonant); }
-    #dissonant_field.danger label::after {
-      content:'⬡ DISSONANT'; margin-left:.7em; color:var(--dissonant); font-size:.82em; letter-spacing:.1em;
+    /* ---- Help side panel ---- */
+    .help-panel {
+      position:fixed; top:0; right:0; height:100vh; width:min(390px, 94vw);
+      background:linear-gradient(180deg, #0b1626, #070d18); border-left:1px solid var(--line);
+      z-index:61; transform:translateX(100%); transition:transform .25s ease;
+      display:flex; flex-direction:column; box-shadow:-20px 0 50px #02050a99;
     }
-    #dissonant_field.locked select { opacity:.6; cursor:not-allowed; }
-    .ds-term { color:var(--dissonant); text-shadow:0 0 8px #bf7bff55; }
-
-    .planet-block {
-      background:var(--panel-soft); border:1px solid var(--line-soft);
-      border-radius:5px; padding:13px; margin-bottom:10px;
+    .help-panel.open { transform:none; }
+    .help-panel-head {
+      display:flex; align-items:center; justify-content:space-between; gap:1rem;
+      padding:1.2rem 1.3rem; border-bottom:1px solid var(--line-soft); flex:none;
     }
-    .planet-block h4 {
-      font-family:var(--f-display); font-size:.64rem; color:var(--blue);
-      letter-spacing:.16em; text-transform:uppercase; margin-bottom:11px;
+    .help-panel-head h3 {
+      font-family:var(--f-display); font-size:.8rem; letter-spacing:.16em;
+      text-transform:uppercase; color:var(--visor);
     }
-    .planet-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:9px; }
+    .help-close {
+      background:transparent; border:1px solid var(--line); border-radius:4px; color:var(--dim);
+      cursor:pointer; font-family:var(--f-mono); font-size:.85rem; width:28px; height:28px; flex:none;
+      transition:border-color .15s, color .15s;
+    }
+    .help-close:hover { border-color:var(--visor); color:var(--text); }
+    .help-body { padding:1.2rem 1.3rem; overflow-y:auto; }
+    .help-body ol { margin:0 0 .4rem 1.1rem; padding:0; }
+    .help-body li { color:var(--note); font-size:.82rem; line-height:1.6; margin-bottom:.6rem; }
+    .help-img { width:100%; border:1px solid var(--line); border-radius:5px; margin:.7rem 0 0; display:block; background:var(--void2); cursor:zoom-in; transition:border-color .15s; }
+    .help-img:hover { border-color:var(--visor); }
+    .help-zoom { font-size:.68rem; color:var(--faint); margin-top:.85rem; letter-spacing:.03em; }
+    .lightbox {
+      position:fixed; inset:0; z-index:70; background:#02050af2; padding:2rem; cursor:zoom-out;
+      display:none; align-items:center; justify-content:center;
+    }
+    .lightbox.open { display:flex; }
+    .lightbox img { max-width:100%; max-height:100%; border:1px solid var(--line); border-radius:4px; box-shadow:0 0 50px #000; }
 
     /* ---- Generate + output ---- */
     .form-error {
@@ -287,13 +291,20 @@
       font-family:var(--f-mono); font-size:.78rem; line-height:1.62; white-space:pre;
       overflow:auto; color:var(--mint); max-height:520px;
     }
+    .output-actions { display:flex; align-items:center; flex-wrap:wrap; gap:1rem; margin-top:.8rem; }
     .btn-copy {
-      margin-top:.8rem; padding:9px 22px; background:transparent; border:1px solid var(--visor);
+      padding:9px 22px; background:transparent; border:1px solid var(--visor);
       border-radius:4px; color:var(--visor); font-family:var(--f-display); letter-spacing:.14em;
       text-transform:uppercase; font-size:.72rem; cursor:pointer; transition:background .2s;
     }
     .btn-copy:hover { background:#45e6de1a; }
     .btn-copy.copied { color:var(--mint); border-color:var(--mint); }
+    .wiki-howto {
+      background:transparent; border:none; cursor:pointer; font-family:var(--f-display);
+      font-weight:700; text-transform:uppercase; letter-spacing:.12em; font-size:.74rem;
+      color:var(--visor); text-decoration:underline; text-underline-offset:3px; padding:0;
+    }
+    .wiki-howto:hover { color:var(--text); }
 
     @media (max-width:760px) { .resolver-body { grid-template-columns:1fr; } }
     @media (max-width:560px) {
@@ -317,7 +328,7 @@
   <!-- SIGNATURE: Portal Address Resolver -->
   <div class="resolver">
     <div class="resolver-head">
-      <span class="title">⬡ Portal Address</span>
+      <span class="title">⬡ Portal Address <button class="help-btn" type="button" data-help="glyphs" title="How to get this info">?</button></span>
       <span class="sub">Click glyphs, or type the address</span>
     </div>
     <div class="resolver-body">
@@ -350,16 +361,16 @@
     <div class="field-grid">
       <div class="field"><label>System name prefix</label><input type="text" id="prefix" placeholder="e.g. SLF -"></div>
       <div class="field"><label>Civilization name</label><input type="text" id="civ_name" placeholder="e.g. Space Link Federation"></div>
-      <div class="field"><label>Galaxy</label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
-      <div class="field"><label>Region</label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
+      <div class="field"><label>Galaxy <button class="help-btn" type="button" data-help="galaxy" title="How to get this info">?</button></label><input type="text" id="galaxy" placeholder="e.g. Eissentam"></div>
+      <div class="field"><label>Region <button class="help-btn" type="button" data-help="region" title="How to get this info">?</button></label><input type="text" id="region" placeholder="e.g. Capeki Spur"></div>
     </div>
   </div>
 
   <div class="panel">
     <h2>Stellar Data</h2>
     <div class="field-grid">
-      <div class="field"><label>System name <span class="q">(no prefix)</span></label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
-      <div class="field"><label>Star class</label><input type="text" id="star_class" placeholder="e.g. G4, F0p"></div>
+      <div class="field"><label>System name <span class="q">(no prefix)</span> <button class="help-btn" type="button" data-help="system_name" title="How to get this info">?</button></label><input type="text" id="orig_name" placeholder="e.g. Urmangt VII"></div>
+      <div class="field"><label>Star class <button class="help-btn" type="button" data-help="star_class" title="How to get this info">?</button></label><input type="text" id="star_class" placeholder="e.g. G4, F0p"></div>
       <div class="field full-width"><label>Star colour</label>
         <div class="swatches" id="swatches">
           <button type="button" class="swatch active" data-color="Yellow"><span class="dot" style="--sc:#ffd75e"></span>Yellow</button>
@@ -370,18 +381,18 @@
         </div>
         <input type="hidden" id="star_color" value="Yellow">
       </div>
-      <div class="field"><label>Faction</label>
+      <div class="field"><label>Faction <button class="help-btn" type="button" data-help="faction" title="How to get this info">?</button></label>
         <select id="faction"><option>Gek</option><option>Vy'keen</option><option>Korvax</option><option>Uncharted</option></select>
       </div>
-      <div class="field"><label>Economy <span class="q">(galaxy map)</span></label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
-      <div class="field"><label>Conflict level</label><input type="text" id="conflict" placeholder="e.g. Tranquil"></div>
-      <div class="field" id="dissonant_field"><label>Dissonant planets?</label>
+      <div class="field"><label>Economy <span class="q">(galaxy map)</span> <button class="help-btn" type="button" data-help="economy" title="How to get this info">?</button></label><input type="text" id="economy" placeholder="e.g. Mining // Advanced"></div>
+      <div class="field"><label>Conflict level <button class="help-btn" type="button" data-help="conflict" title="How to get this info">?</button></label><input type="text" id="conflict" placeholder="e.g. Tranquil"></div>
+      <div class="field" id="dissonant_field"><label>Dissonant planets? <button class="help-btn" type="button" data-help="dissonant" title="How to get this info">?</button></label>
         <select id="dissonant"><option>No</option><option>Yes</option></select>
         <p class="hint" id="dissonant_hint">Select Yes if any planet in the system has <span class="ds-term">"Dissonance Detected"</span> in its description.</p>
       </div>
-      <div class="field" id="water_field" style="display:none"><label>Pure water <span class="q">(ocean)</span> worlds?</label>
+      <div class="field" id="water_field" style="display:none"><label>Pure water <span class="q">(ocean)</span> worlds? <button class="help-btn" type="button" data-help="water" title="How to get this info">?</button></label>
         <select id="water"><option>No</option><option>Yes</option></select>
-        <p class="hint">Full ocean worlds only spawn in purple systems.</p>
+        <p class="hint">Only purple systems have full ocean worlds. Descriptions vary — if a planet is basically all water, you're fine.</p>
       </div>
       <div class="field"><label>Discovery date</label><input type="text" id="disc_date" placeholder="e.g. 3 June 2026"></div>
       <div class="field"><label>Discoverer name</label><input type="text" id="disc_name" placeholder="In-game username"></div>
@@ -426,14 +437,121 @@
   <div class="output-section" id="output_section">
     <div class="output-head">Galactic record entry</div>
     <div class="output-box" id="output_box"></div>
-    <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
+    <div class="output-actions">
+      <button class="btn-copy" id="copy_btn" onclick="copyOutput()">Copy code</button>
+      <button class="wiki-howto" type="button" data-help="wiki">How To Get This Onto The Wiki →</button>
+    </div>
   </div>
 </div>
+
+<!-- Help side panel -->
+<div class="help-panel" id="help_panel" aria-hidden="true">
+  <div class="help-panel-head">
+    <h3 id="help_title">Help</h3>
+    <button class="help-close" id="help_close" type="button" aria-label="Close">✕</button>
+  </div>
+  <div class="help-body" id="help_body"></div>
+</div>
+<div class="lightbox" id="lightbox"><img id="lightbox_img" alt=""></div>
 
 <script>
 const GLYPH_BASE = 'https://cdn.jsdelivr.net/gh/nmsportals/nmsportals.github.io@master/img/glyphs/';
 
 function g(id) { return (document.getElementById(id)?.value || '').trim(); }
+
+/* ---- Help content (text steps now; drop matching screenshots into a /help folder) ---- */
+const HELP_IMG_BASE = 'help/';
+const HELP = {
+  galaxy: { title:'Galaxy', steps:[
+    "Open the Galaxy Map (from a Space Station teleporter, or hold the pulse-drive / warp menu).",
+    "The galaxy's name is shown on the Galaxy Map screen — that's your galaxy."], imgs:['galaxy.png'] },
+  region: { title:'Region', steps:[
+    "Open your Log / Discoveries from the pause menu.",
+    "Discovered systems are grouped by region — the region name is the header of the group your system is in.",
+    "It also flashes in the corner the first time you warp into a new region."], imgs:['region.png'] },
+  system_name: { title:'System name', steps:[
+    "The system's name appears top-left when you warp in, and in your Discoveries.",
+    "Use the ORIGINAL name (the game-generated one) — not a name you renamed it to."], imgs:['system-name.png'] },
+  star_class: { title:'Star class', steps:[
+    "Open the Galaxy Map and select your system.",
+    "The star's class (e.g. G4, F0p) is shown in the system info panel.",
+    "Type it here and the star colour auto-selects."], imgs:['star-class.png'] },
+  faction: { title:'Faction (dominant race)', steps:[
+    "On the Galaxy Map, select the system — the dominant lifeform (Gek, Vy'keen or Korvax) is listed.",
+    "It's also whoever runs the space station. Abandoned/Uncharted systems have none."], imgs:['faction.png'] },
+  economy: { title:'Economy', steps:[
+    "On the Galaxy Map, the system info panel shows the economy type and its wealth (e.g. Mining // Advanced).",
+    "An Economy Scanner ship upgrade shows it for every system on the map."], imgs:['economy.png'] },
+  conflict: { title:'Conflict level', steps:[
+    "The Galaxy Map system info panel lists the conflict level (e.g. Tranquil, Dangerous).",
+    "A Conflict Scanner ship upgrade shows it on the map."], imgs:['conflict.png'] },
+  dissonant: { title:'Dissonant planets', steps:[
+    "On the Galaxy Map, dissonant systems show 'Dissonant' next to the distance (an Economy Scanner ship upgrade reveals it).",
+    "Inside the system, scan each planet — a corrupted-Sentinel world shows 'Dissonance Detected' in its on-screen description.",
+    "If any planet shows that (or the system is flagged Dissonant), choose Yes.",
+    "Purple-star systems are always dissonant."] },
+  water: { title:'Pure water worlds', steps:[
+    "Only purple-star systems can have full ocean worlds.",
+    "Planet descriptions vary, so don't go by the label — if a planet is basically all ocean, it's a water world. Choose Yes if the system has one."] },
+  glyphs: { title:'Portal glyphs', steps:[
+    "Unlock Portal Glyphs first — talk to Travellers at space stations (one glyph each).",
+    "Interact with a portal (or read a Traveller grave) to see the system's 12-glyph address.",
+    "Click the glyphs on the dial here, or type the 12-character code."], imgs:['glyphs.png'] },
+  planet_name: { title:'Planet name', steps:[
+    "A planet's name shows when you scan it or select it in the system view.",
+    "Use its original name."], imgs:['planet-name.png'] },
+  planet_type: { title:'Planet type', steps:[
+    "Point at the planet with your Analysis Visor (from space or the surface).",
+    "The biome type (e.g. Lush, Toxic, Frozen, Barren) is shown — that's the type."], imgs:['planet-type.png'] },
+  planet_weather: { title:'Extreme weather', steps:[
+    "The planet's info (Analysis Visor / discovery page) lists its weather.",
+    "Storm-heavy or hazardous worlds (Scorched, Frozen, Toxic, Radioactive storms) = Yes. Calm/clear = No."], imgs:['planet-weather.png'] },
+  planet_sentinels: { title:'Aggressive sentinels', steps:[
+    "The planet info shows Sentinel activity.",
+    "'Aggressive', 'High security' or 'Frenzied' = Yes. 'Low', 'Limited' or none = No."], imgs:['planet-sentinels.png'] },
+  planet_resources: { title:'Resources', steps:[
+    "Scan the planet with your Analysis Visor — its main resources are listed.",
+    "Enter them separated by commas (e.g. Copper, Paraffinium, Sodium)."], imgs:['planet-resources.png'] },
+  wiki: { title:'How to get this onto the wiki', steps:[
+    "Copy the code above with the Copy button.",
+    "On the wiki, click Add Page / Create New Page and type the exact page title.",
+    "In the editor, switch to the SOURCE editor — open the pencil / ▾ menu (top-right) and choose 'Source editor'. Pasting only works here; the Visual editor won't read the code.",
+    "Clear the box, paste the code, then click Publish / Save. Done."],
+    imgs:['wiki-1.png','wiki-2.png','wiki-3.png','wiki-4.png'] }
+};
+function openHelp(key) {
+  const h = HELP[key];
+  if (!h) return;
+  document.getElementById('help_title').textContent = h.title;
+  let html = '<ol>' + h.steps.map(s => `<li>${s}</li>`).join('') + '</ol>';
+  // Auto-load as many screenshots as exist: <key>-1.png, <key>-2.png, ... (up to 6).
+  // Missing ones remove themselves, so add 1, 2 or more per field — no code changes.
+  for (let i = 1; i <= 6; i++) {
+    html += `<img class="help-img" src="${HELP_IMG_BASE}${key}-${i}.png" alt="" onerror="this.remove()">`;
+  }
+  html += '<p class="help-zoom">Click an image to view it full-size.</p>';
+  document.getElementById('help_body').innerHTML = html;
+  document.getElementById('help_panel').classList.add('open');
+}
+function closeHelp() { document.getElementById('help_panel').classList.remove('open'); }
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-help]');
+  if (b) { e.preventDefault(); openHelp(b.dataset.help); }
+});
+document.getElementById('help_close').addEventListener('click', closeHelp);
+
+/* Click a help screenshot to view it full-size (screenshots are kept full on
+   purpose, so this lets the reader actually read them). */
+const _lb = document.getElementById('lightbox');
+const _lbImg = document.getElementById('lightbox_img');
+document.getElementById('help_body').addEventListener('click', e => {
+  const img = e.target.closest('.help-img');
+  if (img) { _lbImg.src = img.src; _lb.classList.add('open'); }
+});
+_lb.addEventListener('click', () => _lb.classList.remove('open'));
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { _lb.classList.remove('open'); closeHelp(); }
+});
 
 /* ---- Name filter: keep wiki pages clear of slurs / profanity ----
    Substring list catches plurals/compounds; exact list is for short words
@@ -490,12 +608,12 @@ function buildRows() {
     html += `<div class="planet-block">
       <h4>${label}</h4>
       <div class="planet-grid">
-        <div class="field"><label>Name</label><input type="text" id="p${i}_name" placeholder="${namePh}"></div>
-        <div class="field"><label>Type</label><input type="text" id="p${i}_type" placeholder="${typePh}"></div>
-        <div class="field"><label>Extreme weather?</label><select id="p${i}_weather"><option>No</option><option>Yes</option></select></div>
-        <div class="field"><label>Aggressive sentinels?</label><select id="p${i}_sent"><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label>Name <button class="help-btn" type="button" data-help="planet_name" title="How to get this info">?</button></label><input type="text" id="p${i}_name" placeholder="${namePh}"></div>
+        <div class="field"><label>Type <button class="help-btn" type="button" data-help="planet_type" title="How to get this info">?</button></label><input type="text" id="p${i}_type" placeholder="${typePh}"></div>
+        <div class="field"><label>Extreme weather? <button class="help-btn" type="button" data-help="planet_weather" title="How to get this info">?</button></label><select id="p${i}_weather"><option>No</option><option>Yes</option></select></div>
+        <div class="field"><label>Aggressive sentinels? <button class="help-btn" type="button" data-help="planet_sentinels" title="How to get this info">?</button></label><select id="p${i}_sent"><option>No</option><option>Yes</option></select></div>
         ${orbitsField}
-        <div class="field full-width"><label>Resources <span class="q">(comma separated)</span></label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
+        <div class="field full-width"><label>Resources <span class="q">(comma separated)</span> <button class="help-btn" type="button" data-help="planet_resources" title="How to get this info">?</button></label><input type="text" id="p${i}_res" placeholder="e.g. Copper, Paraffinium, Sodium"></div>
         <div class="field full-width"><label>Notes <span class="q">(optional)</span></label><input type="text" id="p${i}_notes" placeholder="Any extra notes"></div>
       </div>
     </div>`;
